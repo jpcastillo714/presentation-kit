@@ -1,0 +1,21 @@
+/* Profile «sober», generated from profile.yml by kit.py. Edit the .yml, not this file. */
+:root {
+  --background: #fbfaf7;
+  --ink: #1c2127;
+  --ink-soft: #5b6570;
+  --accent: #1f5f8b;
+  --accent-2: #b4532a;
+  --line: #d9d4ca;
+  --frame: #1c2127;
+  --font-title: Cambria, 'Times New Roman', serif;
+  --font-text: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: Consolas, 'Courier New', monospace;
+  --title-size: 60px;
+  --text-size: 34px;
+  --title-weight: 600;
+  --series-1: #1f5f8b;
+  --series-2: #b4532a;
+  --series-3: #5b6570;
+  --series-4: #6f8f3a;
+  --series-5: #8a5a9e;
+}

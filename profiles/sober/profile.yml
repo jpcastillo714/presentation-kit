@@ -1,0 +1,36 @@
+name: sober
+description: 'Default profile: light paper, near-black ink, one blue accent for what matters and a brick accent
+  only for warnings. Serif titles (Cambria, because Georgia draws old-style numerals: 300 reads as «3oo»), sans-serif
+  text. Fonts shipped with Windows, so it works offline on any projector.'
+origin: presentation-kit
+colors:
+  background: '#fbfaf7'
+  ink: '#1c2127'
+  ink_soft: '#5b6570'
+  accent: '#1f5f8b'
+  accent_2: '#b4532a'
+  line: '#d9d4ca'
+  frame: '#1c2127'
+  series:
+  - '#1f5f8b'
+  - '#b4532a'
+  - '#5b6570'
+  - '#6f8f3a'
+  - '#8a5a9e'
+fonts:
+  title: Cambria, 'Times New Roman', serif
+  text: '''Segoe UI'', system-ui, -apple-system, sans-serif'
+  mono: Consolas, 'Courier New', monospace
+  pptx_title: Cambria
+  pptx_text: Segoe UI
+  figures:
+  - Segoe UI
+  - Arial
+sizes:
+  title: 60
+  text: 34
+  title_weight: 600
+logo: null
+background_image: null
+pptx_template: null
+pptx_layout: null

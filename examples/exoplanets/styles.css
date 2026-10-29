@@ -1,0 +1,12 @@
+/* Expressive-register tweaks (the «night» profile sets colors and fonts).
+   Depth: a sky that darkens towards the edges instead of a flat background. */
+.slide {
+  background-color: var(--background);
+  background-image: radial-gradient(ellipse 85% 75% at 50% 38%, #13274a 0%, #0a1628 58%, #050b16 100%);
+}
+/* Chromium leaves a white stripe when it rasterizes this gradient into a PDF: flat profile background when printing. */
+@media print { .slide { background-image: none; } }
+.slide.full h1 { max-width: 1500px; text-shadow: 0 2px 18px rgba(5, 11, 22, 0.85); }
+.slide.cover h1 { font-size: 92px; margin-top: -220px; }
+.slide.cover .subtitle { color: var(--accent); }
+.slide .source { color: #8091a8; }

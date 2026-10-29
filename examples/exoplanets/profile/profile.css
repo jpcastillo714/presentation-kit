@@ -1,0 +1,20 @@
+/* Profile «night», generated from profile.yml by kit.py. Edit the .yml, not this file. */
+:root {
+  --background: #0a1628;
+  --ink: #eef2f7;
+  --ink-soft: #9aa8ba;
+  --accent: #f5a623;
+  --accent-2: #7fb3d5;
+  --line: #24395c;
+  --frame: #050b14;
+  --font-title: Cambria, Georgia, serif;
+  --font-text: Calibri, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: Consolas, monospace;
+  --title-size: 60px;
+  --text-size: 34px;
+  --title-weight: 600;
+  --series-1: #f5a623;
+  --series-2: #7fb3d5;
+  --series-3: #c9d3df;
+  --series-4: #e0685a;
+}

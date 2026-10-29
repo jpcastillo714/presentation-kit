@@ -1,56 +1,55 @@
 English · [Español](README.es.md)
 
-# kit-presentaciones
+# presentation-kit
 
-A kit for scientific and lab presentations that are built from **real examples and the context they are for**, not
-from a catalog of templates. You write a plain-text script where every slide title is a conclusion; the look comes
-from a **profile** (which can be extracted from a reference deck from your lab, faculty or conference); and the same
-script produces an **HTML deck** (with animations, presenter view, offline single file and PDF) and an **editable
-.pptx**.
+A kit for scientific and lab presentations built from **real examples and the context they are for**, not from a
+catalog of templates. You write a plain-text script where every slide title is a conclusion; the look comes from a
+**profile** (which can be extracted from a reference deck from your lab, faculty or conference); and the same script
+produces an **HTML deck** (animations, presenter view, offline single file, PDF) and an **editable .pptx**.
 
 It ships with an AI-agent **skill** (Claude Code format, readable by any agent) so you can ask an assistant to build
 decks with it, and with two worked examples you can hand to a model as reference.
 
 | Sober register | Expressive register |
 |---|---|
-| `ejemplos/anscombe`: light background, static figures, one idea per slide. Anscombe's quartet (1973). | `ejemplos/exoplanetas`: night-sky profile, full-bleed figures, five animated scenes. How exoplanets are found. |
+| [`examples/anscombe`](examples/anscombe): light background, static figures, one idea per slide. Anscombe's quartet (1973). | [`examples/exoplanets`](examples/exoplanets): night-sky profile, full-bleed figures, five animated scenes. How planets you cannot see are found. |
 
-Both examples exist in English and Spanish (`deck.en.html` / `deck.html`, and ready-made `.pdf`, `.pptx` and
-single-file `.html`).
+Every example exists in English and Spanish: `anscombe.html` / `anscombe.es.html`, with the `.pdf` and `.pptx` next
+to them. Open the `.html` files in a browser and use the arrow keys.
 
 ## What is in the box
 
 ```
-kit-presentaciones/
-├─ PRINCIPLES.md / PRINCIPIOS.md   15 principles with their evidence, the rule for when to animate, a review checklist
-├─ docs/en, docs/es                the sources: 26 well-known charts and 34 talks, each with links and verification status
-├─ ejemplos/                       worked examples with a "why it works" note on every slide (press E)
-│  ├─ anscombe/                    sober register
-│  └─ exoplanetas/                 expressive register (motor/anim.js scenes)
-├─ perfiles/                       profiles: colors, fonts, logo, background, optional .pptx template
-│  ├─ sobrio/                      default: light paper, one accent
-│  └─ noche/                       dark night sky, amber accent
-├─ motor/                          the engine (no design of its own)
-│  ├─ kit.py                       every command
-│  ├─ deck.css, deck.js            1920×1080 stage, steps, notes, presenter view, print/PDF
-│  ├─ anim.js                      animation library: scenes with one state per step
-│  └─ figuras.py                   matplotlib with the profile's style
-└─ skill/kit-presentaciones/       the agent skill
+presentation-kit/
+├─ PRINCIPLES.md            15 principles with their evidence, the rule for when to animate, a review checklist
+├─ docs/                    the sources: 26 well-known charts and 34 talks, with links and verification status
+├─ examples/                worked decks with a "why it works" note on every slide (press E)
+│  ├─ anscombe/             sober register
+│  └─ exoplanets/           expressive register (animated scenes)
+├─ profiles/                the look: colors, fonts, logo, background, optional .pptx template
+│  ├─ sober/                default: light paper, one accent
+│  └─ night/                dark night sky, amber accent
+├─ engine/                  the engine (no design of its own)
+│  ├─ kit.py                every command
+│  ├─ deck.css, deck.js     1920×1080 stage, steps, notes, presenter view, print/PDF
+│  ├─ anim.js               animation library: scenes with one state per step
+│  └─ figures.py            matplotlib with the profile's style
+└─ skill/presentation-kit/  the agent skill
 ```
 
-Folder and command names are in Spanish (the kit was born in Spanish); every command, option and script key also has
-an English alias.
+Spanish versions sit next to the English ones with a `.es` suffix (`README.es.md`, `PRINCIPLES.es.md`,
+`docs/charts.es.md`, `script.es.md`…).
 
 ## Install
 
 Python 3.10+ and a Chromium-based browser (Chrome, Edge or Chromium) for PDFs and screenshots.
 
 ```bash
-git clone https://github.com/jpcastillo714/kit-presentaciones.git
+git clone https://github.com/jpcastillo714/presentation-kit.git
 ```
 
 ```bash
-pip install -r kit-presentaciones/requirements.txt
+pip install -r presentation-kit/requirements.txt
 ```
 
 Optional: PowerPoint on Windows, only for `render` (exporting the `.pptx` to images to check it).
@@ -58,49 +57,54 @@ Optional: PowerPoint on Windows, only for `render` (exporting the `.pptx` to ima
 ## Quick start
 
 ```bash
-python motor/kit.py new my_talk --profile sobrio --title "My talk"
+python engine/kit.py new my_talk --profile sober --title "My talk"
 ```
 
-Write `my_talk/guion.md` (one slide per `## Conclusion as a sentence`; keys are documented inside the file), make your
-figures with `motor/figuras.py`, then:
+Write `my_talk/script.md` (one slide per `## Conclusion as a sentence`; keys are documented inside the file), make
+your figures with `engine/figures.py`, then:
 
 ```bash
-python motor/kit.py build my_talk
-```
-
-```bash
-python motor/kit.py review my_talk/deck.html
+python engine/kit.py build my_talk
 ```
 
 ```bash
-python motor/kit.py pdf my_talk/deck.html
+python engine/kit.py review my_talk/deck.html
 ```
 
-| Command (alias) | What it does |
+```bash
+python engine/kit.py pdf my_talk/deck.html
+```
+
+For a Spanish deck, write `script.es.md` (or start with `--lang es`) and build it with `--script script.es.md`: you
+get `deck.es.html` and `my_talk.es.pptx`.
+
+| Command | What it does |
 |---|---|
-| `new` (`nueva`) | Scaffolds a deck folder with the engine, a profile and a starter script |
-| `build` (`construir`) | Script → `deck.html` + `<name>.pptx`. `--script guion.en.md` → `deck.en.html`, `<name>.en.pptx` |
-| `review` (`revisar`) | Mechanical review: label-titles, figures without source, too much text, missing images or animations |
-| `shots` (`capturas`) | One PNG per slide (final state), to review by eye or let a model review |
-| `statics` (`estaticos`) | Final frame of each animation, used by the `.pptx` |
-| `package` (`empaquetar`) | Single self-contained HTML that works offline |
+| `new` | Scaffolds a deck folder with the engine, a profile and a starter script |
+| `build` | Script → `deck.html` + `<name>.pptx`. `--script script.es.md` → `deck.es.html`, `<name>.es.pptx` |
+| `review` | Mechanical review: label-titles, figures without source, too much text, missing images or animations |
+| `shots` | One PNG per slide (final state), to review by eye or let a model review |
+| `statics` | Final frame of each animation, used by the `.pptx` |
+| `package` | Single self-contained HTML that works offline |
 | `pdf` | PDF via Chrome/Edge, one slide per page, animations in their final state |
-| `profile --from ref.pptx --name lab` (`perfil`) | Profile from a reference deck: theme and actually-used colors, fonts, logos, background, template |
-| `profile --regenerate <dir>` | Rewrites `perfil.css` and `figuras.mplstyle` after editing `perfil.yml` |
-| `render` (`renderizar`) | `.pptx` → PNG with PowerPoint (Windows only) |
+| `profile --from ref.pptx --name lab` | Profile from a reference deck: theme and actually-used colors, fonts, logos, background, template |
+| `profile --regenerate <dir>` | Rewrites `profile.css` and `figures.mplstyle` after editing `profile.yml` |
+| `render` | `.pptx` → PNG with PowerPoint (Windows only) |
 
-### The script format (`guion.md`)
+Every command and option also has a Spanish alias (`construir`, `revisar`, `--perfil`…).
+
+### The script format (`script.md`)
 
 ```markdown
 ---
 title: What the audience should remember
-profile: sobrio
+profile: sober
 lang: en
 transition: fade        # optional: the only transition allowed
 ---
 
 ## A single outlier changes the slope we report
-@figure figuras/panel_III.svg
+@figure figures/panel_III.svg
 @source Anscombe 1973
 > Speaker notes go here.
 @why Design note shown in study mode (E).
@@ -108,7 +112,24 @@ transition: fade        # optional: the only transition allowed
 
 Keys: `@type cover|section|figure|two|number|text`, `@figure`, `@source`, `@number`, `@anim`, `@steps N`,
 `@static`, `@subtitle`, `@kicker`, `@class full`, `@appendix`, `@why`. Lines starting with `- ` are bullets, with `> `
-speaker notes; the rest are paragraphs. Spanish keys work too (`@figura`, `@fuente`, …).
+speaker notes; the rest are paragraphs.
+
+### Animations
+
+Animations live in the deck's `animations.js`, built with the engine's library:
+
+```js
+window.animations.orbit = K.scene({
+  mount(svg) { /* create the SVG elements once, return them */ },
+  states: [{ curve: 0 }, { curve: 1 }],      // one state per step (@steps 1)
+  draw(g, state, level, t) { /* draw one state */ },
+  duration: 1200, loop: false,
+});
+```
+
+The library interpolates when moving forward, jumps when going back, draws the final state in the PDF, and switches
+language with `K.t("english", "español")`. See [`examples/exoplanets/animations.js`](examples/exoplanets/animations.js).
+Animate only when the content **is** a change (PRINCIPLES.md, "When to animate").
 
 ### In the HTML deck
 
@@ -120,36 +141,36 @@ computer, not to the room. Add `motion: respect` to the script to honor it.
 
 ## Using it with an AI agent
 
-The skill in `skill/kit-presentaciones/SKILL.md` tells an agent how to work with the kit (script first, profile from
-context, figures, animations only under the four conditions, review by eye). For Claude Code, link it into your skills
-folder so it stays in sync with the repo:
+The skill in [`skill/presentation-kit/SKILL.md`](skill/presentation-kit/SKILL.md) tells an agent how to work with
+the kit (script first, profile from context, figures, animations only under the four conditions, review by eye). For
+Claude Code, link it into your skills folder so it stays in sync with the repository:
 
 ```bash
-ln -s "$(pwd)/kit-presentaciones/skill/kit-presentaciones" ~/.claude/skills/kit-presentaciones
+ln -s "$(pwd)/presentation-kit/skill/presentation-kit" ~/.claude/skills/presentation-kit
 ```
 
 On Windows (PowerShell), use a junction instead:
 
 ```powershell
-New-Item -ItemType Junction -Path "$HOME\.claude\skills\kit-presentaciones" -Target "$PWD\kit-presentaciones\skill\kit-presentaciones"
+New-Item -ItemType Junction -Path "$HOME\.claude\skills\presentation-kit" -Target "$PWD\presentation-kit\skill\presentation-kit"
 ```
 
-Other agents (Codex, Gemini, Cursor…) can simply be told to read `skill/kit-presentaciones/SKILL.md` and
-`ejemplos/README.md`. The method that inspired the kit is exactly that: give the model real decks as reference.
+Other agents (Codex, Gemini, Cursor…) can simply be told to read `skill/presentation-kit/SKILL.md` and
+`examples/README.md`. The method behind the kit is exactly that: give the model real decks as reference.
 
 ## Adapting it to your lab
 
-- **You have a .pptx from your lab or faculty:** `python motor/kit.py profile --from lab.pptx --name lab`. It reads
-  the theme, the colors actually used on the slides (generated decks often keep Office's default theme), logos and
-  background images, and keeps the file as the `.pptx` template. Read the warnings it prints.
-- **The reference is a PDF, an image or a web page:** copy `perfiles/sobrio`, edit `perfil.yml` while looking at the
+- **You have a .pptx from your lab or faculty:** `python engine/kit.py profile --from lab.pptx --name lab`. It reads
+  the theme, the colors actually used on the slides (decks generated by code often keep Office's default theme), logos
+  and background images, and keeps the file as the `.pptx` template. Read the warnings it prints.
+- **The reference is a PDF, an image or a web page:** copy `profiles/sober`, edit `profile.yml` while looking at the
   reference, and run `profile --regenerate`.
-- **Custom fonts:** put `Family-Weight.woff2` files in `perfiles/<name>/fuentes/`; the packaged HTML embeds them.
-- **A deck that went well** is the best contribution: add it to `ejemplos/` with an `@why` on every slide.
+- **Custom fonts:** put `Family-Weight.woff2` files in `profiles/<name>/fonts/`; the packaged HTML embeds them.
+- **A deck that went well** is the best contribution: add it to `examples/` with an `@why` on every slide.
 
 ## Licenses
 
-- Code (`motor/`, `skill/`, scripts in `ejemplos/*/figuras/` and `animaciones.js`): [MIT](LICENSE).
+- Code (`engine/`, `skill/`, `examples/*/figures/*.py`, `examples/*/animations.js`): [MIT](LICENSE).
 - Texts, catalogs, principles and example decks: [CC BY 4.0](LICENSE-docs.md).
 
 The catalogs describe and link third-party works; they do not reproduce them. Quotes are under 15 words.

@@ -1,8 +1,8 @@
-English · [Español](PRINCIPIOS.md)
+English · [Español](PRINCIPLES.es.md)
 
 # Principles of the kit
 
-A synthesis of `docs/en/charts.md` (G entries) and `docs/en/presentations.md` (F entries), with sources checked in
+A synthesis of `docs/charts.md` (G entries) and `docs/presentations.md` (F entries), with sources checked in
 October 2026. Each principle says which entries it comes from and how strong the evidence is: **experiment** (there is
 a controlled study), **replication** (there is a study and it was repeated), **craft** (experience of recognized
 authors, no experiment). They are a reading of the sources, not laws.
@@ -75,9 +75,9 @@ slide.
 The kit has two registers and both follow the rule above; what changes is how much of the content is a change and how
 much effort goes into showing it.
 
-- **Sober** (`ejemplos/anscombe`): light background, static figures, no animation. For committees, work meetings and
+- **Sober** (`examples/anscombe`): light background, static figures, no animation. For committees, work meetings and
   when preparation time is short.
-- **Expressive** (`ejemplos/exoplanetas`): dark background with depth, full-bleed figures and an animation on almost
+- **Expressive** (`examples/exoplanets`): dark background with depth, full-bleed figures and an animation on almost
   every slide, **because in that topic almost everything is a change** (a planet crossing, an orbit, shifting lines,
   noise going down, a scale being travelled).
 

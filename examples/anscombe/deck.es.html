@@ -1,0 +1,75 @@
+<!doctype html>
+<!-- Generated from the script by engine/kit.py. Do not edit by hand: edit the script and rebuild.
+     Design tweaks go in styles.css; animations in animations.js (linked automatically if present). -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cuatro conjuntos de datos con la misma estadística y cuatro historias distintas</title>
+<link rel="stylesheet" href="engine/deck.css">
+<link rel="stylesheet" href="profile/profile.css">
+</head>
+<body data-motion="always">
+<div class="stage">
+
+<section class="slide cover">
+  <h1>Cuatro conjuntos de datos con la misma estadística y cuatro historias distintas</h1>
+  <p class="subtitle">Por qué hay que graficar antes de resumir: el cuarteto de Anscombe (1973)</p>
+  <p class="byline">presentation-kit · ejemplo sobrio · 2026</p>
+  <aside class="notes">Una charla de diez minutos para cualquier reunión donde se reporten métricas.</aside>
+  <aside class="why">El título ya es la conclusión de la charla; el subtítulo dice de dónde sale. Sin imagen de relleno.</aside>
+</section>
+<section class="slide number">
+  <h1>Los cuatro conjuntos tienen la misma media, varianza, correlación y recta</h1>
+  <div class="content"><div class="side"><div class="big-number">r = 0,816</div></div><div><p>En los cuatro: media de x <b class="accent">9</b>, varianza de x <b class="accent">11</b>, media de y <b class="accent">7,50</b>, varianza de y <b class="accent">4,12</b> y recta de ajuste <b class="accent">y = 3,00 + 0,500 x</b>.</p><p>Si solo miráramos esta tabla, diríamos que son el mismo fenómeno.</p></div></div>
+  <p class="source">Anscombe, F. J. (1973), The American Statistician 27(1), 17–21. Cálculo propio en figures/make_figures.py.</p>
+  <aside class="notes">Dejar que la sala piense un segundo qué forma tienen estos datos antes de pasar.</aside>
+  <aside class="why">Una cifra grande como evidencia y el resto de la firma en una línea. Crea la expectativa que la siguiente diapositiva rompe (F32: predecir antes de mostrar).</aside>
+</section>
+<section class="slide figure">
+  <h1>Graficados, son cuatro historias distintas</h1>
+  <div class="content"><figure><img src="figures/four.svg" alt=""></figure></div>
+  <p class="source">Anscombe (1973). Los cuatro paneles comparten ejes; la línea gris es la misma recta en todos.</p>
+  <aside class="notes">I es lo que esperamos. II es una curva. III es una recta con un punto fuera. IV no tiene relación: un solo punto la fabrica.</aside>
+  <aside class="why">Múltiplos pequeños con los mismos ejes (G11): la comparación la hace el ojo, no la memoria. La misma recta gris en los cuatro muestra que el resumen es idéntico.</aside>
+</section>
+<section class="slide figure">
+  <h1>En el II los datos son una curva: la recta es el modelo equivocado</h1>
+  <div class="content"><figure><img src="figures/panel_II.svg" alt=""></figure><div class="side"><p>Una parábola los describe casi exactamente.</p><p>La correlación de 0,816 mide qué tan bien se ajusta una recta, no si la recta es el modelo correcto.</p></div></div>
+  <p class="source">Anscombe (1973); ajuste cuadrático propio.</p>
+  <aside class="notes">La pregunta no es «¿qué tan alto es r?», sino «¿qué forma tienen los datos?».</aside>
+  <aside class="why">Una idea por diapositiva (principio 5). El ajuste correcto en color de acento y el resumen engañoso en gris (señalización, F25).</aside>
+</section>
+<section class="slide figure">
+  <h1>En el III un solo punto tuerce la recta: sin él, los datos están perfectamente alineados</h1>
+  <div class="content"><figure><img src="figures/panel_III.svg" alt=""></figure><div class="side"><p>Sin el punto destacado, la correlación es <b class="accent">1,000</b> y la recta pasa a y = 4,01 + 0,345 x.</p><p>Un atípico basta para cambiar la pendiente que reportamos.</p></div></div>
+  <p class="source">Anscombe (1973); ajuste sin el punto atípico, cálculo propio.</p>
+  <aside class="notes">Antes de borrar un atípico hay que entenderlo: puede ser un error o el dato más interesante.</aside>
+  <aside class="why">El punto que importa se marca con el segundo acento, reservado para advertencias. La cifra que lo prueba va al lado de la figura (contigüidad espacial, F25).</aside>
+</section>
+<section class="slide figure">
+  <h1>En el IV no hay relación: un solo punto fabrica toda la correlación</h1>
+  <div class="content"><figure><img src="figures/panel_IV.svg" alt=""></figure><div class="side"><p>Diez de los once puntos tienen la misma x. El único distinto decide la recta entera.</p></div></div>
+  <p class="source">Anscombe (1973).</p>
+  <aside class="notes">Si quitamos ese punto, la recta ni siquiera se puede calcular: todos los x son iguales.</aside>
+  <aside class="why">Declara el límite del número: una correlación alta no prueba una relación (G15, G7).</aside>
+</section>
+<section class="slide text">
+  <h1>Antes de reportar una métrica, grafica los datos y los residuos</h1>
+  <div class="content column top"><ul><li data-step="1"><b class="accent">Grafica la distribución,</b> no solo el promedio: puntos o cajas por grupo (Tukey).</li><li data-step="2"><b class="accent">Grafica los residuos</b> de cada ajuste: ahí aparecen la curva del II y el atípico del III.</li><li data-step="3"><b class="accent">Mira cada punto que domina</b> el resultado antes de creerle a la cifra.</li></ul></div>
+  <p class="source">Anscombe (1973); Wickham y Stryjewski, «40 years of boxplots» (2011).</p>
+  <aside class="notes">Esta es la diapositiva que la gente se lleva. Cerrar preguntando qué métrica reportamos sin graficar.</aside>
+  <aside class="why">Cierre que pide algo concreto; las tres acciones se revelan de a una (segmentación, F25).</aside>
+</section>
+<section class="slide text appendix">
+  <div class="appendix-label">Anexo</div>
+  <h1>Fuentes</h1>
+  <div class="content column top"><ul><li>Anscombe, F. J. (1973). Graphs in Statistical Analysis. The American Statistician 27(1), 17–21. DOI 10.1080/00031305.1973.10478966.</li><li>Wickham, H. y Stryjewski, L. (2011). 40 years of boxplots. https://vita.had.co.nz/papers/boxplots.pdf</li><li>Datos y cálculos: figures/make_figures.py (comprueba la estadística antes de graficar).</li></ul></div>
+  <aside class="why">El anexo junta las fuentes y dice dónde se calculó cada cifra.</aside>
+</section>
+
+</div>
+<script>window.animations = window.animations || {};</script>
+<script src="engine/deck.js"></script>
+</body>
+</html>

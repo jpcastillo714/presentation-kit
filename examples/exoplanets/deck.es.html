@@ -1,0 +1,85 @@
+<!doctype html>
+<!-- Generated from the script by engine/kit.py. Do not edit by hand: edit the script and rebuild.
+     Design tweaks go in styles.css; animations in animations.js (linked automatically if present). -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cómo encontrar un planeta que no se puede ver</title>
+<link rel="stylesheet" href="engine/deck.css">
+<link rel="stylesheet" href="profile/profile.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="fade" data-motion="always">
+<div class="stage">
+
+<section class="slide cover full" data-anim="cover">
+  <div class="content"><figure><div class="scene" id="scene-1"></div></figure></div>
+  <h1>Cómo encontrar un planeta que no se puede ver</h1>
+  <p class="subtitle">Dos señales diminutas: la sombra y el bamboleo</p>
+  <p class="byline">presentation-kit · ejemplo expresivo · 2026</p>
+  <aside class="notes">El espectro de fondo se mece: así se ve, muy exagerado, una estrella que se acerca y se aleja.</aside>
+  <aside class="why">La portada ya enseña algo: el espectro que se mece es una de las dos señales de la charla, exagerada. No es decoración (F11: cada movimiento con propósito).</aside>
+</section>
+<section class="slide figure full" data-anim="transit" data-steps="1">
+  <p class="kicker">La sombra</p>
+  <h1>Cuando un planeta pasa por delante, su estrella se apaga un poco</h1>
+  <div class="content"><figure><div class="scene" id="scene-2"><!-- animation «transit»: draw it in animations.js --></div></figure></div>
+  <p class="source">Profundidad = (R_planeta / R_estrella)², con los radios nominales de la IAU (2015): Júpiter frente al Sol, 1,06 %; la Tierra, 84 ppm. Sin oscurecimiento hacia el borde; tamaños de la Tierra no a escala en la curva.</p>
+  <aside class="notes">Primero un planeta como Júpiter: la estrella pierde un 1 % de su luz. Al avanzar, uno como la Tierra: 84 partes por millón, y la escala vertical cambia para que se vea.</aside>
+  <aside class="why">La curva de luz se dibuja al mismo tiempo que el planeta cruza: causa y efecto juntos (contigüidad temporal, F25). El cambio de escala se dice en el eje, no se esconde (G10).</aside>
+</section>
+<section class="slide figure full" data-anim="orbit" data-steps="2">
+  <p class="kicker">El bamboleo</p>
+  <h1>La estrella también se mece: la Tierra mueve al Sol apenas 9 cm/s</h1>
+  <div class="content"><figure><div class="scene" id="scene-3"><!-- animation «orbit»: draw it in animations.js --></div></figure></div>
+  <p class="source">Tercera ley de Kepler con órbita circular: la Tierra induce 8,9 cm/s en el Sol; Júpiter, 12,5 m/s. Movimiento y corrimiento exagerados para que se vean.</p>
+  <aside class="notes">Paso 1: la estrella también orbita el centro de masa. Paso 2: vista de lado, se acerca y se aleja. Paso 3: las líneas del espectro se corren al azul y al rojo al mismo ritmo.</aside>
+  <aside class="why">La medición sale del movimiento a la vista (F29: congruencia). Una idea nueva por paso.</aside>
+</section>
+<section class="slide figure full" data-anim="lines" data-steps="3">
+  <p class="kicker">El truco</p>
+  <h1>Una línea sola es ruido; sumando miles, el error baja como 1/√N</h1>
+  <div class="content"><figure><div class="scene" id="scene-4"><!-- animation «lines»: draw it in animations.js --></div></figure></div>
+  <p class="source">Simulación con líneas gaussianas idénticas y ruido de fotones; no son líneas reales. El error de la velocidad cae como 1/√N: con 2000 líneas, unas 45 veces menos.</p>
+  <aside class="notes">Así se miden centímetros por segundo: ninguna línea sola alcanza, pero miles juntas sí.</aside>
+  <aside class="why">Acumular es un proceso: la animación lo muestra mientras ocurre, y la regla 1/√N aparece cuando ya se vio (ejemplo antes que regla, F11 y F12).</aside>
+</section>
+<section class="slide text">
+  <p class="kicker">Lo que se mide</p>
+  <h1>Juntas, las dos señales dicen de qué está hecho el planeta</h1>
+  <div class="content column top"><ul><li data-step="1"><b class="accent">La sombra da el tamaño:</b> la profundidad es (R_planeta / R_estrella)².</li><li data-step="2"><b class="accent">El bamboleo da la masa</b> (la mínima: depende de la inclinación de la órbita).</li><li data-step="3"><b class="accent">Tamaño y masa dan la densidad:</b> roca como la Tierra o gas como Júpiter.</li></ul></div>
+  <p class="source">Relaciones estándar de los métodos de tránsito y de velocidad radial.</p>
+  <aside class="notes">Después de cuatro diapositivas en movimiento, una quieta: aquí se junta lo visto.</aside>
+  <aside class="why">Una diapositiva quieta tras la racha animada marca el cambio de ritmo (principios, «Dos registros»). Las tres ideas se revelan de a una.</aside>
+</section>
+<section class="slide figure full" data-anim="scale" data-steps="1">
+  <p class="kicker">La escala</p>
+  <h1>Encontrar otra Tierra exige señales más de cien veces más chicas que las de un Júpiter</h1>
+  <div class="content"><figure><div class="scene" id="scene-6"><!-- animation «scale»: draw it in animations.js --></div></figure></div>
+  <p class="source">Cálculo propio: velocidad (Kepler) 12,5 m/s frente a 8,9 cm/s, ÷139; profundidad (IAU 2015) 1,06 % frente a 84 ppm, ÷126. Escalas logarítmicas.</p>
+  <aside class="notes">Primero Júpiter en las dos escalas; al avanzar, la Tierra se desliza hasta su lugar y aparece cuánto más chica es cada señal.</aside>
+  <aside class="why">Deslizarse por una escala logarítmica es una transformación de escala: la distancia se siente recorriéndola (F23). Posición sobre escala común (G20).</aside>
+</section>
+<section class="slide text">
+  <p class="kicker">Cómo se hizo</p>
+  <h1>Esta presentación es un guion de texto, cinco escenas y un perfil</h1>
+  <div class="content column top"><ul><li><b class="accent">script.es.md</b> (y script.md): un título-conclusión por diapositiva, con su fuente y sus notas.</li><li><b class="accent">animations.js:</b> cinco escenas con <code>K.scene</code>, un estado por paso.</li><li><b class="accent">perfil night:</b> colores y tipografías; <code>kit.py build</code> arma el HTML y el .pptx.</li></ul></div>
+  <p class="source">presentation-kit: engine/kit.py, engine/anim.js, profiles/night.</p>
+  <aside class="notes">Abrir script.es.md al lado de la presentación para mostrar que el contenido es solo texto.</aside>
+  <aside class="why">Para quien recibe el kit: muestra que lo expresivo no exige herramientas de diseño, solo un guion y escenas cortas.</aside>
+</section>
+<section class="slide text appendix">
+  <div class="appendix-label">Anexo</div>
+  <h1>Fuentes</h1>
+  <div class="content column top"><ul><li>Radios nominales: IAU 2015 Resolution B3 (Sol 695 700 km; Tierra ecuatorial 6 378,1 km; Júpiter ecuatorial 71 492 km).</li><li>Masas: Sol 1,989 × 10³⁰ kg; Tierra 5,972 × 10²⁴ kg; Júpiter 1,898 × 10²⁷ kg. G = 6,674 × 10⁻¹¹ m³ kg⁻¹ s⁻².</li><li>Velocidad inducida: tercera ley de Kepler para una órbita circular.</li><li>Todo se calcula en animations.js; las animaciones exageran el movimiento para que se vea.</li></ul></div>
+  <aside class="why">El anexo dice qué constantes se usaron y dónde está cada cálculo.</aside>
+</section>
+
+</div>
+<script>window.animations = window.animations || {};</script>
+<script src="engine/anim.js"></script>
+<script src="animations.js"></script>
+<script src="engine/deck.js"></script>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<!-- Generated from the script by engine/kit.py. Do not edit by hand: edit the script and rebuild.
+     Design tweaks go in styles.css; animations in animations.js (linked automatically if present). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to find a planet you cannot see</title>
+<link rel="stylesheet" href="engine/deck.css">
+<link rel="stylesheet" href="profile/profile.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="fade" data-motion="always">
+<div class="stage">
+
+<section class="slide cover full" data-anim="cover">
+  <div class="content"><figure><div class="scene" id="scene-1"></div></figure></div>
+  <h1>How to find a planet you cannot see</h1>
+  <p class="subtitle">Two tiny signals: the shadow and the wobble</p>
+  <p class="byline">presentation-kit · expressive example · 2026</p>
+  <aside class="notes">The background spectrum sways: this is, greatly exaggerated, a star moving towards and away from us.</aside>
+  <aside class="why">The cover already teaches: the swaying spectrum is one of the two signals of the talk, exaggerated. It is not decoration (F11: every movement with a purpose).</aside>
+</section>
+<section class="slide figure full" data-anim="transit" data-steps="1">
+  <p class="kicker">The shadow</p>
+  <h1>When a planet passes in front, its star dims a little</h1>
+  <div class="content"><figure><div class="scene" id="scene-2"><!-- animation «transit»: draw it in animations.js --></div></figure></div>
+  <p class="source">Depth = (R_planet / R_star)², with IAU (2015) nominal radii: Jupiter in front of the Sun, 1.06 %; Earth, 84 ppm. No limb darkening; Earth's size not to scale in the curve.</p>
+  <aside class="notes">First a Jupiter-sized planet: the star loses 1 % of its light. Next, an Earth-sized one: 84 parts per million, and the vertical scale changes so it can be seen.</aside>
+  <aside class="why">The light curve is drawn while the planet crosses: cause and effect together (temporal contiguity, F25). The change of scale is stated on the axis, not hidden (G10).</aside>
+</section>
+<section class="slide figure full" data-anim="orbit" data-steps="2">
+  <p class="kicker">The wobble</p>
+  <h1>The star wobbles too: Earth moves the Sun by only 9 cm/s</h1>
+  <div class="content"><figure><div class="scene" id="scene-3"><!-- animation «orbit»: draw it in animations.js --></div></figure></div>
+  <p class="source">Kepler's third law, circular orbit: Earth induces 8.9 cm/s on the Sun; Jupiter, 12.5 m/s. Motion and shift exaggerated so they can be seen.</p>
+  <aside class="notes">Step 1: the star also orbits the center of mass. Step 2: seen edge-on, it approaches and recedes. Step 3: the spectral lines shift to the blue and the red at the same pace.</aside>
+  <aside class="why">The measurement comes out of the motion in plain sight (F29: congruence). One new idea per step.</aside>
+</section>
+<section class="slide figure full" data-anim="lines" data-steps="3">
+  <p class="kicker">The trick</p>
+  <h1>A single line is noise; adding thousands, the error drops as 1/√N</h1>
+  <div class="content"><figure><div class="scene" id="scene-4"><!-- animation «lines»: draw it in animations.js --></div></figure></div>
+  <p class="source">Simulation with identical Gaussian lines and photon noise; these are not real lines. The velocity error drops as 1/√N: with 2000 lines, about 45 times smaller.</p>
+  <aside class="notes">This is how centimeters per second are measured: no single line is enough, but thousands together are.</aside>
+  <aside class="why">Accumulating is a process: the animation shows it as it happens, and the 1/√N rule appears after it has been seen (example before rule, F11 and F12).</aside>
+</section>
+<section class="slide text">
+  <p class="kicker">What is measured</p>
+  <h1>Together, the two signals tell what the planet is made of</h1>
+  <div class="content column top"><ul><li data-step="1"><b class="accent">The shadow gives the size:</b> the depth is (R_planet / R_star)².</li><li data-step="2"><b class="accent">The wobble gives the mass</b> (the minimum: it depends on the orbit's inclination).</li><li data-step="3"><b class="accent">Size and mass give the density:</b> rock like Earth or gas like Jupiter.</li></ul></div>
+  <p class="source">Standard relations of the transit and radial-velocity methods.</p>
+  <aside class="notes">After four slides in motion, a still one: this is where it all comes together.</aside>
+  <aside class="why">A still slide after the animated run marks the change of pace (principles, "Two registers"). The three ideas are revealed one at a time.</aside>
+</section>
+<section class="slide figure full" data-anim="scale" data-steps="1">
+  <p class="kicker">The scale</p>
+  <h1>Finding another Earth means signals more than a hundred times smaller than a Jupiter's</h1>
+  <div class="content"><figure><div class="scene" id="scene-6"><!-- animation «scale»: draw it in animations.js --></div></figure></div>
+  <p class="source">Own computation: velocity (Kepler) 12.5 m/s vs 8.9 cm/s, ÷139; depth (IAU 2015) 1.06 % vs 84 ppm, ÷126. Logarithmic scales.</p>
+  <aside class="notes">First Jupiter on both scales; next, Earth slides to its place and the ratio for each signal appears.</aside>
+  <aside class="why">Sliding along a logarithmic scale is a change of scale: the distance is felt by travelling it (F23). Position on a common scale (G20).</aside>
+</section>
+<section class="slide text">
+  <p class="kicker">How it was made</p>
+  <h1>This talk is a text script, five scenes and a profile</h1>
+  <div class="content column top"><ul><li><b class="accent">script.md</b> (and script.es.md): one conclusion-title per slide, with its source and notes.</li><li><b class="accent">animations.js:</b> five scenes built with <code>K.scene</code>, one state per step.</li><li><b class="accent">night profile:</b> colors and fonts; <code>kit.py build</code> produces the HTML and the .pptx.</li></ul></div>
+  <p class="source">presentation-kit: engine/kit.py, engine/anim.js, profiles/night.</p>
+  <aside class="notes">Open script.md next to the deck to show that the content is just text.</aside>
+  <aside class="why">For whoever receives the kit: it shows that the expressive register needs no design tools, just a script and short scenes.</aside>
+</section>
+<section class="slide text appendix">
+  <div class="appendix-label">Appendix</div>
+  <h1>Sources</h1>
+  <div class="content column top"><ul><li>Nominal radii: IAU 2015 Resolution B3 (Sun 695,700 km; Earth equatorial 6,378.1 km; Jupiter equatorial 71,492 km).</li><li>Masses: Sun 1.989 × 10³⁰ kg; Earth 5.972 × 10²⁴ kg; Jupiter 1.898 × 10²⁷ kg. G = 6.674 × 10⁻¹¹ m³ kg⁻¹ s⁻².</li><li>Induced velocity: Kepler's third law for a circular orbit.</li><li>Everything is computed in animations.js; the animations exaggerate motion so it can be seen.</li></ul></div>
+  <aside class="why">The appendix states which constants were used and where each computation lives.</aside>
+</section>
+
+</div>
+<script>window.animations = window.animations || {};</script>
+<script src="engine/anim.js"></script>
+<script src="animations.js"></script>
+<script src="engine/deck.js"></script>
+</body>
+</html>

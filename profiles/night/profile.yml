@@ -1,0 +1,34 @@
+name: night
+description: Dark night-sky background with an amber accent and an ice-blue second accent. For dark rooms, spectra
+  and sky images. Make figures with this same profile (do not paste white-background figures).
+origin: presentation-kit
+colors:
+  background: '#0a1628'
+  ink: '#eef2f7'
+  ink_soft: '#9aa8ba'
+  accent: '#f5a623'
+  accent_2: '#7fb3d5'
+  line: '#24395c'
+  frame: '#050b14'
+  series:
+  - '#f5a623'
+  - '#7fb3d5'
+  - '#c9d3df'
+  - '#e0685a'
+fonts:
+  title: Cambria, Georgia, serif
+  text: Calibri, 'Segoe UI', system-ui, sans-serif
+  mono: Consolas, monospace
+  pptx_title: Cambria
+  pptx_text: Calibri
+  figures:
+  - Calibri
+  - Segoe UI
+sizes:
+  title: 60
+  text: 34
+  title_weight: 600
+logo: null
+background_image: null
+pptx_template: null
+pptx_layout: null
