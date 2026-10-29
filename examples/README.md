@@ -13,7 +13,7 @@ the example closest to what it will make.
 | [`anscombe/`](anscombe) | Four datasets with the same statistics and different shapes: plot before you summarize. 8 slides. | Sober |
 | [`exoplanets/`](exoplanets) | How planets you cannot see are found: the transit shadow and the stellar wobble. 8 slides, 5 animated scenes. | Expressive |
 
-Each folder has the packaged single-file HTML, the PDF and the `.pptx` in both languages (`*.es.*` = Spanish).
+Each folder has the packaged single-file HTML, the PDF and the `.pptx`.
 
 ## Resources and where to see them
 
@@ -50,8 +50,7 @@ Linked, not copied (third-party copyright).
 ## Ejemplos (español)
 
 Esta carpeta es el corazón del kit. En vez de reglas genéricas o estilos de catálogo, un modelo (o una persona) recibe
-presentaciones reales como referencia y aprende de ellas. Cada ejemplo trae su guion (`script.md` en inglés,
-`script.es.md` en español), sus figuras con el código que las genera y, en cada diapositiva, un **por qué funciona**
+presentaciones reales como referencia y aprende de ellas. Cada ejemplo trae su guion (`script.es.md`), sus figuras con el código que las genera y, en cada diapositiva, un **por qué funciona**
 (en el HTML, tecla **E**; en el guion, la línea `@why`). Cuando le pases el kit a un modelo, pásale esta carpeta.
 
 | Carpeta | Qué es | Registro |

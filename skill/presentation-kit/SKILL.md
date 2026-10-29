@@ -1,6 +1,6 @@
 ---
 name: presentation-kit
-description: Build scientific and lab presentations with presentation-kit. Start from a script where every title states the conclusion. The look comes from a profile taken from the context (a reference deck from the lab, faculty or conference), matplotlib figures share that style, and the same script produces an animated HTML deck and an editable .pptx, in English or Spanish. Use it when the user asks for a presentation, slides, a talk, a thesis defense, a seminar, a lab meeting, a class, to improve a deck, or to adapt a deck to the style of another. No catalog styles, no decoration; animation only when the content is a change.
+description: Build scientific and lab presentations with presentation-kit. Start from a script where every title states the conclusion. The look comes from a profile taken from the context (a reference deck from the lab, faculty or conference), matplotlib figures share that style, and the same script produces an animated HTML deck and an editable .pptx. Use it when the user asks for a presentation, slides, a talk, a thesis defense, a seminar, a lab meeting, a class, to improve a deck, or to adapt a deck to the style of another. No catalog styles, no decoration; animation only when the content is a change.
 ---
 
 # presentation-kit

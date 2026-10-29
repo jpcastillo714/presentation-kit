@@ -15,8 +15,8 @@ asistente que arme presentaciones con el kit, y dos ejemplos completos para dár
 |---|---|
 | [`examples/anscombe`](examples/anscombe): fondo claro, figuras fijas, una idea por diapositiva. El cuarteto de Anscombe (1973). | [`examples/exoplanets`](examples/exoplanets): perfil de cielo nocturno, figuras a pantalla completa, cinco escenas animadas. Cómo se encuentran planetas que no se ven. |
 
-Cada ejemplo está en inglés y en español: `anscombe.html` / `anscombe.es.html`, con el `.pdf` y el `.pptx` al lado.
-Abre los `.html` en el navegador y avanza con las flechas.
+Cada carpeta de ejemplo trae la presentación como un solo `.html`, más su `.pdf` y su `.pptx`. Abre el `.html` en el
+navegador y avanza con las flechas.
 
 ## Qué trae
 
@@ -37,9 +37,6 @@ presentation-kit/
 │  └─ figures.py            matplotlib con el estilo del perfil
 └─ skill/presentation-kit/  la skill para agentes
 ```
-
-Las versiones en español están junto a las en inglés, con el sufijo `.es` (`README.es.md`, `PRINCIPLES.es.md`,
-`docs/charts.es.md`, `script.es.md`…).
 
 ## Instalación
 

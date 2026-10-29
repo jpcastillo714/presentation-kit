@@ -14,8 +14,8 @@ decks with it, and with two worked examples you can hand to a model as reference
 |---|---|
 | [`examples/anscombe`](examples/anscombe): light background, static figures, one idea per slide. Anscombe's quartet (1973). | [`examples/exoplanets`](examples/exoplanets): night-sky profile, full-bleed figures, five animated scenes. How planets you cannot see are found. |
 
-Every example exists in English and Spanish: `anscombe.html` / `anscombe.es.html`, with the `.pdf` and `.pptx` next
-to them. Open the `.html` files in a browser and use the arrow keys.
+Each example folder has the deck as a single `.html` file, plus its `.pdf` and `.pptx`. Open the `.html` in a browser
+and use the arrow keys.
 
 ## What is in the box
 
@@ -36,9 +36,6 @@ presentation-kit/
 │  └─ figures.py            matplotlib with the profile's style
 └─ skill/presentation-kit/  the agent skill
 ```
-
-Spanish versions sit next to the English ones with a `.es` suffix (`README.es.md`, `PRINCIPLES.es.md`,
-`docs/charts.es.md`, `script.es.md`…).
 
 ## Install
 
