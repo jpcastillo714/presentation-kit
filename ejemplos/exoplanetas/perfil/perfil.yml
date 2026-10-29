@@ -1,0 +1,35 @@
+nombre: noche
+descripcion: Fondo oscuro de cielo nocturno con acento ámbar y un segundo acento hielo.
+  Para salas oscuras, espectros e imágenes del cielo. / Dark night-sky background
+  with an amber accent and an ice-blue second accent. For dark rooms, spectra and
+  sky images.
+origen: kit-presentaciones
+colores:
+  fondo: '#0a1628'
+  tinta: '#eef2f7'
+  tinta_suave: '#9aa8ba'
+  acento: '#f5a623'
+  acento_2: '#7fb3d5'
+  linea: '#24395c'
+  marco: '#050b14'
+  serie:
+  - '#f5a623'
+  - '#7fb3d5'
+  - '#c9d3df'
+  - '#e0685a'
+fuentes:
+  titulo: Cambria, Georgia, serif
+  texto: Calibri, 'Segoe UI', system-ui, sans-serif
+  mono: Consolas, monospace
+  pptx_titulo: Cambria
+  pptx_texto: Calibri
+  figuras:
+  - Calibri
+  - Segoe UI
+tamanos:
+  titulo: 60
+  texto: 34
+  peso_titulo: 600
+logo: null
+plantilla_pptx: null
+layout_pptx: null

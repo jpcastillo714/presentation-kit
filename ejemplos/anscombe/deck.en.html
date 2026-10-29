@@ -1,0 +1,76 @@
+<!doctype html>
+<!-- Generado desde guion por motor/kit.py. No lo edites a mano: cambia el guion y vuelve a construir.
+     Ajustes de diseño en estilos.css; animaciones en animaciones.js (se enlazan solos si existen).
+     Generated from the script by motor/kit.py. Do not edit by hand: edit the script and rebuild. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four datasets with the same statistics and four different stories</title>
+<link rel="stylesheet" href="motor/deck.css">
+<link rel="stylesheet" href="perfil/perfil.css">
+</head>
+<body data-movimiento="siempre">
+<div class="escenario">
+
+<section class="slide portada">
+  <h1>Four datasets with the same statistics and four different stories</h1>
+  <p class="subtitulo">Why you should plot before you summarize: Anscombe's quartet (1973)</p>
+  <p class="autoria">kit-presentaciones · sober example · 2026</p>
+  <aside class="notas">A ten-minute talk for any meeting where metrics get reported.</aside>
+  <aside class="porque">The title is already the conclusion of the talk; the subtitle says where it comes from. No filler image.</aside>
+</section>
+<section class="slide dato">
+  <h1>All four sets share the same mean, variance, correlation and regression line</h1>
+  <div class="cuerpo"><div class="lado"><div class="cifra">r = 0.816</div></div><div><p>In all four: mean of x <b class="acento">9</b>, variance of x <b class="acento">11</b>, mean of y <b class="acento">7.50</b>, variance of y <b class="acento">4.12</b> and fitted line <b class="acento">y = 3.00 + 0.500 x</b>.</p><p>If we only looked at this table, we would call them the same phenomenon.</p></div></div>
+  <p class="fuente">Anscombe, F. J. (1973), The American Statistician 27(1), 17–21. Own computation in figuras/hacer_figuras.py.</p>
+  <aside class="notas">Let the room guess for a second what these data look like before moving on.</aside>
+  <aside class="porque">One big number as the evidence and the rest of the signature in one line. It sets up the expectation that the next slide breaks (F32: predict before you show).</aside>
+</section>
+<section class="slide figura">
+  <h1>Plotted, they are four different stories</h1>
+  <div class="cuerpo"><figure><img src="figuras/cuatro.svg" alt=""></figure></div>
+  <p class="fuente">Anscombe (1973). The four panels share axes; the grey line is the same fit in all of them.</p>
+  <aside class="notas">I is what we expect. II is a curve. III is a line with one point off. IV has no relation at all: a single point creates it.</aside>
+  <aside class="porque">Small multiples on shared axes (G11): the eye makes the comparison, not memory. The same grey line in all four shows that the summary is identical.</aside>
+</section>
+<section class="slide figura">
+  <h1>In II the data are a curve: the straight line is the wrong model</h1>
+  <div class="cuerpo"><figure><img src="figuras/panel_II.svg" alt=""></figure><div class="lado"><p>A parabola describes them almost exactly.</p><p>A correlation of 0.816 measures how well a line fits, not whether a line is the right model.</p></div></div>
+  <p class="fuente">Anscombe (1973); own quadratic fit.</p>
+  <aside class="notas">The question is not "how high is r?" but "what shape do the data have?".</aside>
+  <aside class="porque">One idea per slide (principle 5). The right fit in the accent color and the misleading summary in grey (signaling, F25).</aside>
+</section>
+<section class="slide figura">
+  <h1>In III a single point bends the line: without it, the data are perfectly aligned</h1>
+  <div class="cuerpo"><figure><img src="figuras/panel_III.svg" alt=""></figure><div class="lado"><p>Without the highlighted point, the correlation is <b class="acento">1.000</b> and the line becomes y = 4.01 + 0.345 x.</p><p>One outlier is enough to change the slope we report.</p></div></div>
+  <p class="fuente">Anscombe (1973); fit without the outlier, own computation.</p>
+  <aside class="notas">Before deleting an outlier, understand it: it may be an error or the most interesting data point.</aside>
+  <aside class="porque">The point that matters is marked with the second accent, reserved for warnings. The number that proves it sits next to the figure (spatial contiguity, F25).</aside>
+</section>
+<section class="slide figura">
+  <h1>In IV there is no relation: a single point manufactures the whole correlation</h1>
+  <div class="cuerpo"><figure><img src="figuras/panel_IV.svg" alt=""></figure><div class="lado"><p>Ten of the eleven points share the same x. The only different one decides the whole line.</p></div></div>
+  <p class="fuente">Anscombe (1973).</p>
+  <aside class="notas">Remove that point and the line cannot even be computed: all x values are equal.</aside>
+  <aside class="porque">It states the limit of the number: a high correlation does not prove a relation (G15, G7).</aside>
+</section>
+<section class="slide texto">
+  <h1>Before reporting a metric, plot the data and the residuals</h1>
+  <div class="cuerpo columna arriba"><ul><li data-paso="1"><b class="acento">Plot the distribution,</b> not only the mean: points or boxes per group (Tukey).</li><li data-paso="2"><b class="acento">Plot the residuals</b> of every fit: that is where II's curve and III's outlier show up.</li><li data-paso="3"><b class="acento">Look at every point that dominates</b> the result before you trust the number.</li></ul></div>
+  <p class="fuente">Anscombe (1973); Wickham &amp; Stryjewski, "40 years of boxplots" (2011).</p>
+  <aside class="notas">This is the slide people take home. Close by asking which metric we report without plotting.</aside>
+  <aside class="porque">A closing slide that asks for something concrete; the three actions are revealed one at a time (segmentation, F25).</aside>
+</section>
+<section class="slide texto anexo">
+  <div class="etiqueta-anexo">Appendix</div>
+  <h1>Sources</h1>
+  <div class="cuerpo columna arriba"><ul><li>Anscombe, F. J. (1973). Graphs in Statistical Analysis. The American Statistician 27(1), 17–21. DOI 10.1080/00031305.1973.10478966.</li><li>Wickham, H. &amp; Stryjewski, L. (2011). 40 years of boxplots. https://vita.had.co.nz/papers/boxplots.pdf</li><li>Data and computations: figuras/hacer_figuras.py (checks the statistics before plotting).</li></ul></div>
+  <aside class="porque">The appendix gathers the sources and says where each number was computed.</aside>
+</section>
+
+</div>
+<script>window.animaciones = window.animaciones || {};</script>
+<script src="motor/deck.js"></script>
+</body>
+</html>

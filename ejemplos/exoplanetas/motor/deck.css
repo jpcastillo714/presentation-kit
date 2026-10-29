@@ -1,0 +1,188 @@
+/* =====================================================================
+   Motor de kit-presentaciones — estructura, no estilo. / Engine: structure, not style.
+   Escenario fijo de 1920×1080 que se escala entero a la ventana.
+   Colores y tipografías vienen del perfil (perfil/perfil.css): aquí solo
+   hay variables con valores neutros de respaldo.
+   Ningún efecto decorativo vive aquí: sin degradados, sombras ni
+   transiciones entre diapositivas (principios.md, «Cuándo animar»).
+   ===================================================================== */
+
+:root {
+  --fondo: #ffffff;
+  --tinta: #1a1a1a;
+  --tinta-suave: #5f6368;
+  --acento: #1f5f8b;
+  --acento-2: #b4532a;
+  --linea: #d9d9d9;
+  --marco: #111111;
+  --fuente-titulo: Georgia, "Times New Roman", serif;
+  --fuente-texto: "Segoe UI", system-ui, sans-serif;
+  --fuente-mono: Consolas, "Courier New", monospace;
+  --titulo: 60px;
+  --peso-titulo: 600;
+  --texto: 34px;
+  --pequeno: 22px;
+  --margen: 120px;
+  --margen-sup: 90px;
+  --margen-inf: 70px;
+}
+
+/* --- Escenario ------------------------------------------------------ */
+html, body { margin: 0; height: 100%; background: var(--marco); }
+body { overflow: hidden; }
+.escenario {
+  position: absolute; left: 50%; top: 50%;
+  width: 1920px; height: 1080px;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+}
+.slide {
+  position: absolute; inset: 0; box-sizing: border-box;
+  display: flex; flex-direction: column;
+  padding: var(--margen-sup) var(--margen) var(--margen-inf);
+  background: var(--fondo); color: var(--tinta);
+  font-family: var(--fuente-texto); font-size: var(--texto); line-height: 1.35;
+  visibility: hidden; opacity: 0; pointer-events: none;
+  overflow: hidden;
+}
+.slide.activa { visibility: visible; opacity: 1; pointer-events: auto; }
+
+/* --- Texto ---------------------------------------------------------- */
+.slide h1 {
+  font-family: var(--fuente-titulo); font-size: var(--titulo); font-weight: var(--peso-titulo);
+  line-height: 1.12; margin: 0 0 44px; max-width: 1560px; text-wrap: balance;
+}
+.slide h2 { font-family: var(--fuente-titulo); font-size: 44px; font-weight: var(--peso-titulo); margin: 0 0 20px; }
+.slide p { margin: 0 0 0.6em; max-width: 1400px; }
+.slide ul, .slide ol { margin: 0; padding-left: 1.1em; }
+.slide li { margin: 0 0 0.45em; }
+.slide em.acento, .slide b.acento, .acento { color: var(--acento); font-style: normal; }
+.slide .acento-2 { color: var(--acento-2); }
+.slide .suave { color: var(--tinta-suave); }
+.slide code { font-family: var(--fuente-mono); font-size: 0.9em; }
+.pequeno { font-size: var(--pequeno); }
+
+/* La fuente de la evidencia: una línea discreta al pie (principio 8). */
+.fuente {
+  font-size: var(--pequeno); color: var(--tinta-suave); line-height: 1.3;
+  margin-top: auto; padding-top: 22px; max-width: 1500px;
+}
+.fuente::before { content: "Fuente: "; }
+html[lang="en"] .fuente::before { content: "Source: "; }
+.fuente.sin-rotulo::before { content: none; }
+
+/* --- Cuerpo y composiciones mínimas --------------------------------- */
+.cuerpo { flex: 1; min-height: 0; display: flex; gap: 64px; align-items: center; }
+.cuerpo > * { min-width: 0; }
+.cuerpo.arriba { align-items: flex-start; }
+.cuerpo.columna { flex-direction: column; align-items: stretch; gap: 28px; }
+.cuerpo.dos > * { flex: 1 1 0; }
+.cuerpo .lado { flex: 0 0 560px; }
+.cuerpo .lado.ancho { flex-basis: 720px; }
+
+figure { margin: 0; flex: 1 1 auto; min-height: 0; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+figure > img, figure > svg, figure > canvas, figure > .lienzo { max-width: 100%; max-height: 100%; min-height: 0; flex: 1 1 auto; object-fit: contain; }
+figure > .lienzo { width: 100%; }
+figcaption { font-size: var(--pequeno); color: var(--tinta-suave); margin-top: 12px; text-align: center; }
+
+/* Una cifra grande que es la evidencia (tipo «dato»). */
+.cifra { font-family: var(--fuente-titulo); font-size: 168px; line-height: 1; color: var(--acento); font-weight: var(--peso-titulo); white-space: nowrap; }
+.cifra sup { font-size: 0.42em; vertical-align: 0.95em; line-height: 0; }
+.cifra-unidad { font-size: 0.4em; }
+.slide.dato .cuerpo .lado { flex: 0 0 auto; max-width: 820px; }
+.slide.dato .cuerpo > div:last-child { font-size: 38px; }
+
+/* Diapositivas de solo texto: más grandes y centradas en la altura, no un documento arriba. */
+.slide.texto .cuerpo.columna { justify-content: center; font-size: 42px; }
+.slide.texto .cuerpo.columna li { margin-bottom: 0.85em; }
+.slide.texto.anexo .cuerpo.columna { justify-content: flex-start; font-size: 28px; }
+.slide.texto.anexo .cuerpo.columna li { margin-bottom: 0.4em; }
+
+/* Advertencia de lectura o límite (principios 8 y 15). */
+.nota-lectura { border-left: 6px solid var(--acento-2); padding: 6px 0 6px 26px; font-size: 28px; max-width: 1400px; }
+
+/* Portada, sección y cierre: solo cambian la composición. */
+.slide.portada, .slide.seccion { justify-content: center; }
+.slide.portada h1 { font-size: 84px; max-width: 1500px; margin-bottom: 28px; }
+.slide.portada .subtitulo { font-size: 40px; color: var(--tinta-suave); max-width: 1400px; }
+.slide.portada .autoria { margin-top: 64px; font-size: 28px; color: var(--tinta-suave); }
+.slide.seccion h1 { font-size: 76px; }
+.slide.seccion .numero-seccion { font-size: 28px; color: var(--acento); margin-bottom: 18px; letter-spacing: 0.08em; }
+.etiqueta-anexo { font-size: var(--pequeno); color: var(--tinta-suave); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+
+/* Logo del perfil, si lo hay (lo inserta deck.js desde <body data-logo>). */
+.logo-perfil { position: absolute; right: var(--logo-derecha, 56px); top: var(--logo-arriba, 40px); height: var(--logo-alto, 64px); }
+.slide.sin-logo .logo-perfil { display: none; }
+
+/* Número de diapositiva (lo inserta deck.js). */
+.numero-slide { position: absolute; right: 56px; bottom: 30px; font-size: 18px; color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
+.slide.portada .numero-slide { display: none; }
+
+/* --- Pantalla completa: la figura ocupa toda la diapositiva y el título va encima (clase «completa») */
+.slide.completa > .cuerpo { position: absolute; inset: 0; padding: 0; gap: 0; }
+.slide.completa > .cuerpo > figure { height: 100%; }
+.slide.completa > .cuerpo .lienzo { width: 100%; height: 100%; }
+.slide.completa > h1, .slide.completa > p, .slide.completa > .fuente { position: relative; z-index: 2; }
+.slide.completa > .fuente { position: absolute; left: var(--margen); bottom: var(--margen-inf); right: 260px; }
+.antetitulo { font-size: 22px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--acento); margin: 0 0 14px; }
+
+/* --- Transición opcional entre diapositivas: un fundido corto (front matter «transicion: fundido»).
+   Es la única transición del motor; ninguna diapositiva vuela, gira ni rebota. */
+body.fundido .slide { transition: opacity 0.45s ease, visibility 0s linear 0.45s; }
+body.fundido .slide.activa { transition: opacity 0.45s ease, visibility 0s; }
+
+/* --- Modo «solo lienzo» (lo usa kit.py estaticos para fotografiar una animación sin título ni fuente) */
+body.solo-lienzo .slide > :not(.cuerpo), body.solo-lienzo .numero-slide, body.solo-lienzo .logo-perfil { visibility: hidden; }
+body.solo-lienzo .slide > .cuerpo { position: absolute; inset: 0; padding: 0; }
+
+/* --- Pasos: revelar partes con la tecla (segmentar no es animar) ---- */
+.slide [data-paso] { transition: opacity 0.25s linear; }
+.slide [data-paso]:not(.visto) { opacity: 0; }
+.slide [data-paso].tenue:not(.visto) { opacity: 0.18; }
+
+/* --- Notas del orador y ayudas de pantalla -------------------------- */
+aside.notas { display: none; }
+/* «Por qué funciona»: comentario de diseño en las presentaciones que sirven de ejemplo.
+   Oculto al presentar; la tecla E (modo estudio) lo muestra. Nunca sale en el PDF. */
+aside.porque { display: none; }
+body.estudio .slide aside.porque {
+  display: block; position: absolute; right: 28px; top: 28px; width: 560px; z-index: 5;
+  background: #fff8db; color: #2b2410; border: 1px solid #e3cf7a; border-radius: 6px;
+  font: 21px/1.4 "Segoe UI", system-ui, sans-serif; padding: 16px 20px;
+}
+body.estudio .slide aside.porque::before { content: "Por qué funciona"; display: block; font-weight: 700; margin-bottom: 6px; }
+#panel-notas {
+  position: fixed; left: 0; right: 0; bottom: 0; max-height: 34vh; overflow: auto;
+  background: rgba(20, 20, 20, 0.94); color: #f2f2f2; font: 18px/1.45 system-ui, sans-serif;
+  padding: 14px 22px; display: none; z-index: 10;
+}
+#panel-notas.abierto { display: block; }
+#panel-notas b { color: #fff; }
+.pantalla-negra { position: fixed; inset: 0; background: #000; z-index: 20; display: none; }
+.pantalla-negra.activa { display: block; }
+#ayuda-motor {
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 30; display: none;
+  background: #fff; color: #222; font: 16px/1.6 system-ui, sans-serif; padding: 20px 28px; border-radius: 8px;
+}
+#ayuda-motor.abierto { display: block; }
+.solo-impreso { display: none; }
+
+/* «Reducir movimiento» del sistema solo se respeta si la presentación lo pide (data-movimiento="respetar"),
+   o si quien presenta apaga las animaciones con M (data-movimiento="nunca"). */
+@media (prefers-reduced-motion: reduce) {
+  body[data-movimiento="respetar"] *, body[data-movimiento="respetar"] *::before, body[data-movimiento="respetar"] *::after { transition: none !important; animation: none !important; }
+}
+body[data-movimiento="nunca"] *, body[data-movimiento="nunca"] *::before, body[data-movimiento="nunca"] *::after { transition: none !important; animation: none !important; }
+
+/* --- Impresión / PDF: una diapositiva por página, todo en su estado final */
+@page { size: 1920px 1080px; margin: 0; }
+@media print {
+  html, body { height: auto; background: none; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .escenario { position: static; transform: none !important; width: 1920px; height: auto; }
+  .slide { position: relative; visibility: visible; opacity: 1; width: 1920px; height: 1080px; break-after: page; page-break-after: always; }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+  .slide [data-paso] { opacity: 1 !important; }
+  .solo-pantalla, #panel-notas, #ayuda-motor, .pantalla-negra, aside.porque { display: none !important; }
+  .solo-impreso { display: block; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

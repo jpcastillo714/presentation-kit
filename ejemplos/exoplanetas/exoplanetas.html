@@ -1,0 +1,906 @@
+<!doctype html>
+<!-- Generado desde guion por motor/kit.py. No lo edites a mano: cambia el guion y vuelve a construir.
+     Ajustes de diseño en estilos.css; animaciones en animaciones.js (se enlazan solos si existen).
+     Generated from the script by motor/kit.py. Do not edit by hand: edit the script and rebuild. -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cómo encontrar un planeta que no se puede ver</title>
+<style>
+/* =====================================================================
+   Motor de kit-presentaciones — estructura, no estilo. / Engine: structure, not style.
+   Escenario fijo de 1920×1080 que se escala entero a la ventana.
+   Colores y tipografías vienen del perfil (perfil/perfil.css): aquí solo
+   hay variables con valores neutros de respaldo.
+   Ningún efecto decorativo vive aquí: sin degradados, sombras ni
+   transiciones entre diapositivas (principios.md, «Cuándo animar»).
+   ===================================================================== */
+
+:root {
+  --fondo: #ffffff;
+  --tinta: #1a1a1a;
+  --tinta-suave: #5f6368;
+  --acento: #1f5f8b;
+  --acento-2: #b4532a;
+  --linea: #d9d9d9;
+  --marco: #111111;
+  --fuente-titulo: Georgia, "Times New Roman", serif;
+  --fuente-texto: "Segoe UI", system-ui, sans-serif;
+  --fuente-mono: Consolas, "Courier New", monospace;
+  --titulo: 60px;
+  --peso-titulo: 600;
+  --texto: 34px;
+  --pequeno: 22px;
+  --margen: 120px;
+  --margen-sup: 90px;
+  --margen-inf: 70px;
+}
+
+/* --- Escenario ------------------------------------------------------ */
+html, body { margin: 0; height: 100%; background: var(--marco); }
+body { overflow: hidden; }
+.escenario {
+  position: absolute; left: 50%; top: 50%;
+  width: 1920px; height: 1080px;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+}
+.slide {
+  position: absolute; inset: 0; box-sizing: border-box;
+  display: flex; flex-direction: column;
+  padding: var(--margen-sup) var(--margen) var(--margen-inf);
+  background: var(--fondo); color: var(--tinta);
+  font-family: var(--fuente-texto); font-size: var(--texto); line-height: 1.35;
+  visibility: hidden; opacity: 0; pointer-events: none;
+  overflow: hidden;
+}
+.slide.activa { visibility: visible; opacity: 1; pointer-events: auto; }
+
+/* --- Texto ---------------------------------------------------------- */
+.slide h1 {
+  font-family: var(--fuente-titulo); font-size: var(--titulo); font-weight: var(--peso-titulo);
+  line-height: 1.12; margin: 0 0 44px; max-width: 1560px; text-wrap: balance;
+}
+.slide h2 { font-family: var(--fuente-titulo); font-size: 44px; font-weight: var(--peso-titulo); margin: 0 0 20px; }
+.slide p { margin: 0 0 0.6em; max-width: 1400px; }
+.slide ul, .slide ol { margin: 0; padding-left: 1.1em; }
+.slide li { margin: 0 0 0.45em; }
+.slide em.acento, .slide b.acento, .acento { color: var(--acento); font-style: normal; }
+.slide .acento-2 { color: var(--acento-2); }
+.slide .suave { color: var(--tinta-suave); }
+.slide code { font-family: var(--fuente-mono); font-size: 0.9em; }
+.pequeno { font-size: var(--pequeno); }
+
+/* La fuente de la evidencia: una línea discreta al pie (principio 8). */
+.fuente {
+  font-size: var(--pequeno); color: var(--tinta-suave); line-height: 1.3;
+  margin-top: auto; padding-top: 22px; max-width: 1500px;
+}
+.fuente::before { content: "Fuente: "; }
+html[lang="en"] .fuente::before { content: "Source: "; }
+.fuente.sin-rotulo::before { content: none; }
+
+/* --- Cuerpo y composiciones mínimas --------------------------------- */
+.cuerpo { flex: 1; min-height: 0; display: flex; gap: 64px; align-items: center; }
+.cuerpo > * { min-width: 0; }
+.cuerpo.arriba { align-items: flex-start; }
+.cuerpo.columna { flex-direction: column; align-items: stretch; gap: 28px; }
+.cuerpo.dos > * { flex: 1 1 0; }
+.cuerpo .lado { flex: 0 0 560px; }
+.cuerpo .lado.ancho { flex-basis: 720px; }
+
+figure { margin: 0; flex: 1 1 auto; min-height: 0; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+figure > img, figure > svg, figure > canvas, figure > .lienzo { max-width: 100%; max-height: 100%; min-height: 0; flex: 1 1 auto; object-fit: contain; }
+figure > .lienzo { width: 100%; }
+figcaption { font-size: var(--pequeno); color: var(--tinta-suave); margin-top: 12px; text-align: center; }
+
+/* Una cifra grande que es la evidencia (tipo «dato»). */
+.cifra { font-family: var(--fuente-titulo); font-size: 168px; line-height: 1; color: var(--acento); font-weight: var(--peso-titulo); white-space: nowrap; }
+.cifra sup { font-size: 0.42em; vertical-align: 0.95em; line-height: 0; }
+.cifra-unidad { font-size: 0.4em; }
+.slide.dato .cuerpo .lado { flex: 0 0 auto; max-width: 820px; }
+.slide.dato .cuerpo > div:last-child { font-size: 38px; }
+
+/* Diapositivas de solo texto: más grandes y centradas en la altura, no un documento arriba. */
+.slide.texto .cuerpo.columna { justify-content: center; font-size: 42px; }
+.slide.texto .cuerpo.columna li { margin-bottom: 0.85em; }
+.slide.texto.anexo .cuerpo.columna { justify-content: flex-start; font-size: 28px; }
+.slide.texto.anexo .cuerpo.columna li { margin-bottom: 0.4em; }
+
+/* Advertencia de lectura o límite (principios 8 y 15). */
+.nota-lectura { border-left: 6px solid var(--acento-2); padding: 6px 0 6px 26px; font-size: 28px; max-width: 1400px; }
+
+/* Portada, sección y cierre: solo cambian la composición. */
+.slide.portada, .slide.seccion { justify-content: center; }
+.slide.portada h1 { font-size: 84px; max-width: 1500px; margin-bottom: 28px; }
+.slide.portada .subtitulo { font-size: 40px; color: var(--tinta-suave); max-width: 1400px; }
+.slide.portada .autoria { margin-top: 64px; font-size: 28px; color: var(--tinta-suave); }
+.slide.seccion h1 { font-size: 76px; }
+.slide.seccion .numero-seccion { font-size: 28px; color: var(--acento); margin-bottom: 18px; letter-spacing: 0.08em; }
+.etiqueta-anexo { font-size: var(--pequeno); color: var(--tinta-suave); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+
+/* Logo del perfil, si lo hay (lo inserta deck.js desde <body data-logo>). */
+.logo-perfil { position: absolute; right: var(--logo-derecha, 56px); top: var(--logo-arriba, 40px); height: var(--logo-alto, 64px); }
+.slide.sin-logo .logo-perfil { display: none; }
+
+/* Número de diapositiva (lo inserta deck.js). */
+.numero-slide { position: absolute; right: 56px; bottom: 30px; font-size: 18px; color: var(--tinta-suave); font-variant-numeric: tabular-nums; }
+.slide.portada .numero-slide { display: none; }
+
+/* --- Pantalla completa: la figura ocupa toda la diapositiva y el título va encima (clase «completa») */
+.slide.completa > .cuerpo { position: absolute; inset: 0; padding: 0; gap: 0; }
+.slide.completa > .cuerpo > figure { height: 100%; }
+.slide.completa > .cuerpo .lienzo { width: 100%; height: 100%; }
+.slide.completa > h1, .slide.completa > p, .slide.completa > .fuente { position: relative; z-index: 2; }
+.slide.completa > .fuente { position: absolute; left: var(--margen); bottom: var(--margen-inf); right: 260px; }
+.antetitulo { font-size: 22px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--acento); margin: 0 0 14px; }
+
+/* --- Transición opcional entre diapositivas: un fundido corto (front matter «transicion: fundido»).
+   Es la única transición del motor; ninguna diapositiva vuela, gira ni rebota. */
+body.fundido .slide { transition: opacity 0.45s ease, visibility 0s linear 0.45s; }
+body.fundido .slide.activa { transition: opacity 0.45s ease, visibility 0s; }
+
+/* --- Modo «solo lienzo» (lo usa kit.py estaticos para fotografiar una animación sin título ni fuente) */
+body.solo-lienzo .slide > :not(.cuerpo), body.solo-lienzo .numero-slide, body.solo-lienzo .logo-perfil { visibility: hidden; }
+body.solo-lienzo .slide > .cuerpo { position: absolute; inset: 0; padding: 0; }
+
+/* --- Pasos: revelar partes con la tecla (segmentar no es animar) ---- */
+.slide [data-paso] { transition: opacity 0.25s linear; }
+.slide [data-paso]:not(.visto) { opacity: 0; }
+.slide [data-paso].tenue:not(.visto) { opacity: 0.18; }
+
+/* --- Notas del orador y ayudas de pantalla -------------------------- */
+aside.notas { display: none; }
+/* «Por qué funciona»: comentario de diseño en las presentaciones que sirven de ejemplo.
+   Oculto al presentar; la tecla E (modo estudio) lo muestra. Nunca sale en el PDF. */
+aside.porque { display: none; }
+body.estudio .slide aside.porque {
+  display: block; position: absolute; right: 28px; top: 28px; width: 560px; z-index: 5;
+  background: #fff8db; color: #2b2410; border: 1px solid #e3cf7a; border-radius: 6px;
+  font: 21px/1.4 "Segoe UI", system-ui, sans-serif; padding: 16px 20px;
+}
+body.estudio .slide aside.porque::before { content: "Por qué funciona"; display: block; font-weight: 700; margin-bottom: 6px; }
+#panel-notas {
+  position: fixed; left: 0; right: 0; bottom: 0; max-height: 34vh; overflow: auto;
+  background: rgba(20, 20, 20, 0.94); color: #f2f2f2; font: 18px/1.45 system-ui, sans-serif;
+  padding: 14px 22px; display: none; z-index: 10;
+}
+#panel-notas.abierto { display: block; }
+#panel-notas b { color: #fff; }
+.pantalla-negra { position: fixed; inset: 0; background: #000; z-index: 20; display: none; }
+.pantalla-negra.activa { display: block; }
+#ayuda-motor {
+  position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 30; display: none;
+  background: #fff; color: #222; font: 16px/1.6 system-ui, sans-serif; padding: 20px 28px; border-radius: 8px;
+}
+#ayuda-motor.abierto { display: block; }
+.solo-impreso { display: none; }
+
+/* «Reducir movimiento» del sistema solo se respeta si la presentación lo pide (data-movimiento="respetar"),
+   o si quien presenta apaga las animaciones con M (data-movimiento="nunca"). */
+@media (prefers-reduced-motion: reduce) {
+  body[data-movimiento="respetar"] *, body[data-movimiento="respetar"] *::before, body[data-movimiento="respetar"] *::after { transition: none !important; animation: none !important; }
+}
+body[data-movimiento="nunca"] *, body[data-movimiento="nunca"] *::before, body[data-movimiento="nunca"] *::after { transition: none !important; animation: none !important; }
+
+/* --- Impresión / PDF: una diapositiva por página, todo en su estado final */
+@page { size: 1920px 1080px; margin: 0; }
+@media print {
+  html, body { height: auto; background: none; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .escenario { position: static; transform: none !important; width: 1920px; height: auto; }
+  .slide { position: relative; visibility: visible; opacity: 1; width: 1920px; height: 1080px; break-after: page; page-break-after: always; }
+  .slide:last-child { break-after: auto; page-break-after: auto; }
+  .slide [data-paso] { opacity: 1 !important; }
+  .solo-pantalla, #panel-notas, #ayuda-motor, .pantalla-negra, aside.porque { display: none !important; }
+  .solo-impreso { display: block; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+</style>
+<style>
+/* Perfil «noche» — generado desde perfil.yml por kit.py. Edita el .yml, no este archivo. */
+:root {
+  --fondo: #0a1628;
+  --tinta: #eef2f7;
+  --tinta-suave: #9aa8ba;
+  --acento: #f5a623;
+  --acento-2: #7fb3d5;
+  --linea: #24395c;
+  --marco: #050b14;
+  --fuente-titulo: Cambria, Georgia, serif;
+  --fuente-texto: Calibri, 'Segoe UI', system-ui, sans-serif;
+  --fuente-mono: Consolas, monospace;
+  --titulo: 60px;
+  --texto: 34px;
+  --peso-titulo: 600;
+  --serie-1: #f5a623;
+  --serie-2: #7fb3d5;
+  --serie-3: #c9d3df;
+  --serie-4: #e0685a;
+}
+
+</style>
+<style>
+/* Ajustes de la versión expresiva (el perfil «noche» pone colores y tipografías) / Expressive-register tweaks (the «noche» profile sets colors and fonts).
+   Profundidad: un cielo que se oscurece hacia los bordes, en vez de un fondo plano. */
+.slide {
+  background-color: var(--fondo);
+  background-image: radial-gradient(ellipse 85% 75% at 50% 38%, #13274a 0%, #0a1628 58%, #050b16 100%);
+}
+/* Edge deja una raya blanca al rasterizar este degradado en el PDF: al imprimir, fondo liso del perfil. */
+@media print { .slide { background-image: none; } }
+.slide.completa h1 { max-width: 1500px; text-shadow: 0 2px 18px rgba(5, 11, 22, 0.85); }
+.slide.portada h1 { font-size: 92px; margin-top: -220px; }
+.slide.portada .subtitulo { color: var(--acento); }
+.slide .fuente { color: #8091a8; }
+/* Las diapositivas quietas (texto) resaltan el término clave con el ámbar. */
+.slide.texto .cuerpo.columna b.acento { color: var(--acento); }
+
+</style>
+</head>
+<body class="fundido" data-movimiento="siempre">
+<div class="escenario">
+
+<section class="slide portada completa" data-anim="portada">
+  <div class="cuerpo"><figure><div class="lienzo" id="lienzo-1"></div></figure></div>
+  <h1>Cómo encontrar un planeta que no se puede ver</h1>
+  <p class="subtitulo">Dos señales diminutas: la sombra y el bamboleo</p>
+  <p class="autoria">kit-presentaciones · ejemplo expresivo · 2026</p>
+  <aside class="notas">El espectro de fondo se mece: así se ve, muy exagerado, una estrella que se acerca y se aleja.</aside>
+  <aside class="porque">La portada ya enseña algo: el espectro que se mece es una de las dos señales de la charla, exagerada. No es decoración (F11: cada movimiento con propósito).</aside>
+</section>
+<section class="slide figura completa" data-anim="transito" data-pasos="1">
+  <p class="antetitulo">La sombra</p>
+  <h1>Cuando un planeta pasa por delante, su estrella se apaga un poco</h1>
+  <div class="cuerpo"><figure><div class="lienzo" id="lienzo-2"><!-- animación «transito»: dibújala en el <script> de animaciones --></div></figure></div>
+  <p class="fuente">Profundidad = (R_planeta / R_estrella)², con los radios nominales de la IAU (2015): Júpiter frente al Sol, 1,06 %; la Tierra, 84 ppm. Sin oscurecimiento hacia el borde; tamaños de la Tierra no a escala en la curva.</p>
+  <aside class="notas">Primero un planeta como Júpiter: la estrella pierde un 1 % de su luz. Al avanzar, uno como la Tierra: 84 partes por millón, y la escala vertical cambia para que se vea.</aside>
+  <aside class="porque">La curva de luz se dibuja al mismo tiempo que el planeta cruza: causa y efecto juntos (contigüidad temporal, F25). El cambio de escala se dice en el eje, no se esconde (G10).</aside>
+</section>
+<section class="slide figura completa" data-anim="orbita" data-pasos="2">
+  <p class="antetitulo">El bamboleo</p>
+  <h1>La estrella también se mece: la Tierra mueve al Sol apenas 9 cm/s</h1>
+  <div class="cuerpo"><figure><div class="lienzo" id="lienzo-3"><!-- animación «orbita»: dibújala en el <script> de animaciones --></div></figure></div>
+  <p class="fuente">Tercera ley de Kepler con órbita circular: la Tierra induce 8,9 cm/s en el Sol; Júpiter, 12,5 m/s. Movimiento y corrimiento exagerados para que se vean.</p>
+  <aside class="notas">Paso 1: la estrella también orbita el centro de masa. Paso 2: vista de lado, se acerca y se aleja. Paso 3: las líneas del espectro se corren al azul y al rojo al mismo ritmo.</aside>
+  <aside class="porque">La medición sale del movimiento a la vista (F29: congruencia). Una idea nueva por paso.</aside>
+</section>
+<section class="slide figura completa" data-anim="lineas" data-pasos="3">
+  <p class="antetitulo">El truco</p>
+  <h1>Una línea sola es ruido; sumando miles, el error baja como 1/√N</h1>
+  <div class="cuerpo"><figure><div class="lienzo" id="lienzo-4"><!-- animación «lineas»: dibújala en el <script> de animaciones --></div></figure></div>
+  <p class="fuente">Simulación con líneas gaussianas idénticas y ruido de fotones; no son líneas reales. El error de la velocidad cae como 1/√N: con 2000 líneas, unas 45 veces menos.</p>
+  <aside class="notas">Así se miden centímetros por segundo: ninguna línea sola alcanza, pero miles juntas sí.</aside>
+  <aside class="porque">Acumular es un proceso: la animación lo muestra mientras ocurre, y la regla 1/√N aparece cuando ya se vio (ejemplo antes que regla, F11 y F12).</aside>
+</section>
+<section class="slide texto">
+  <p class="antetitulo">Lo que se mide</p>
+  <h1>Juntas, las dos señales dicen de qué está hecho el planeta</h1>
+  <div class="cuerpo columna arriba"><ul><li data-paso="1"><b class="acento">La sombra da el tamaño:</b> la profundidad es (R_planeta / R_estrella)².</li><li data-paso="2"><b class="acento">El bamboleo da la masa</b> (la mínima: depende de la inclinación de la órbita).</li><li data-paso="3"><b class="acento">Tamaño y masa dan la densidad:</b> roca como la Tierra o gas como Júpiter.</li></ul></div>
+  <p class="fuente">Relaciones estándar de los métodos de tránsito y de velocidad radial.</p>
+  <aside class="notas">Después de cuatro diapositivas en movimiento, una quieta: aquí se junta lo visto.</aside>
+  <aside class="porque">Una diapositiva quieta tras la racha animada marca el cambio de ritmo (principios, «Dos registros»). Las tres ideas se revelan de a una.</aside>
+</section>
+<section class="slide figura completa" data-anim="escala" data-pasos="1">
+  <p class="antetitulo">La escala</p>
+  <h1>Encontrar otra Tierra exige señales más de cien veces más chicas que las de un Júpiter</h1>
+  <div class="cuerpo"><figure><div class="lienzo" id="lienzo-6"><!-- animación «escala»: dibújala en el <script> de animaciones --></div></figure></div>
+  <p class="fuente">Cálculo propio: velocidad (Kepler) 12,5 m/s frente a 8,9 cm/s, ÷139; profundidad (IAU 2015) 1,06 % frente a 84 ppm, ÷126. Escalas logarítmicas.</p>
+  <aside class="notas">Primero Júpiter en las dos escalas; al avanzar, la Tierra se desliza hasta su lugar y aparece cuánto más chica es cada señal.</aside>
+  <aside class="porque">Deslizarse por una escala logarítmica es una transformación de escala: la distancia se siente recorriéndola (F23). Posición sobre escala común (G20).</aside>
+</section>
+<section class="slide texto">
+  <p class="antetitulo">Cómo se hizo</p>
+  <h1>Esta presentación es un guion de texto, cinco escenas y un perfil</h1>
+  <div class="cuerpo columna arriba"><ul><li><b class="acento">guion.md</b> (y guion.en.md): un título-conclusión por diapositiva, con su fuente y sus notas.</li><li><b class="acento">animaciones.js:</b> cinco escenas con <code>K.escena</code>, un estado por paso.</li><li><b class="acento">perfil noche:</b> colores y tipografías; <code>kit.py build</code> arma el HTML y el .pptx.</li></ul></div>
+  <p class="fuente">kit-presentaciones: motor/kit.py, motor/anim.js, perfiles/noche.</p>
+  <aside class="notas">Abrir guion.md al lado de la presentación para mostrar que el contenido es solo texto.</aside>
+  <aside class="porque">Para quien recibe el kit: muestra que lo expresivo no exige herramientas de diseño, solo un guion y escenas cortas.</aside>
+</section>
+<section class="slide texto anexo">
+  <div class="etiqueta-anexo">Anexo</div>
+  <h1>Fuentes</h1>
+  <div class="cuerpo columna arriba"><ul><li>Radios nominales: IAU 2015 Resolution B3 (Sol 695 700 km; Tierra ecuatorial 6 378,1 km; Júpiter ecuatorial 71 492 km).</li><li>Masas: Sol 1,989 × 10³⁰ kg; Tierra 5,972 × 10²⁴ kg; Júpiter 1,898 × 10²⁷ kg. G = 6,674 × 10⁻¹¹ m³ kg⁻¹ s⁻².</li><li>Velocidad inducida: tercera ley de Kepler para una órbita circular.</li><li>Todo se calcula en animaciones.js; las animaciones exageran el movimiento para que se vea.</li></ul></div>
+  <aside class="porque">El anexo dice qué constantes se usaron y dónde está cada cálculo.</aside>
+</section>
+
+</div>
+<script>window.animaciones = window.animaciones || {};</script>
+<script>
+/* =====================================================================
+   Librería de animación del kit (window.K). Opcional: la enlaza una
+   presentación que tenga animaciones.js.
+
+   La idea central es la ESCENA: una animación es una lista de estados
+   (uno por nivel de pasos) y una función que dibuja un estado. La librería
+   interpola entre estados al avanzar, salta al retroceder, respeta
+   «reducir movimiento» y dibuja el último estado al imprimir. Así cada
+   animación es determinista: un nivel siempre se ve igual.
+
+     window.animaciones.mia = K.escena({
+       montar(svg, slide) { ...crea elementos, devuelve un objeto g... },
+       estados: [{x: 0}, {x: 1}, ...],          // uno por nivel (0..N)
+       dibujar(g, est, nivel, t) { ... },       // t: segundos desde que entró (para bucles)
+       duracion: 1600,                          // ms por transición (o función de nivel)
+       bucle: false,                            // true: redibuja continuamente mientras está activa
+     });
+
+   Usa setTimeout y no requestAnimationFrame: requestAnimationFrame se
+   detiene si la ventana no se está dibujando (PDF, capturas, ventanas
+   en segundo plano).
+   ===================================================================== */
+(function () {
+  "use strict";
+  const NS = "http://www.w3.org/2000/svg";
+  const K = (window.K = window.K || {});
+
+  K.svg = function (tag, attrs = {}, padre) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) if (attrs[k] !== undefined && attrs[k] !== null) e.setAttribute(k, attrs[k]);
+    if (padre) padre.appendChild(e);
+    return e;
+  };
+  K.texto = function (padre, x, y, txt, attrs = {}) {
+    const t = K.svg("text", Object.assign({ x, y }, attrs), padre);
+    t.textContent = txt;
+    return t;
+  };
+  K.attr = function (e, attrs) { for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+  K.lerp = (a, b, t) => a + (b - a) * t;
+  K.clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  K.suave = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);   // ease-in-out
+  /* Decimal según el idioma de la página: coma en español, punto en inglés. / Decimal mark by page language. */
+  K.en = () => document.documentElement.lang === "en";
+  K.coma = (v, d = 2) => { const s = v.toFixed(d).replace("-", "−"); return K.en() ? s : s.replace(".", ","); };
+  /* Texto según el idioma: K.t("hola", "hello"). / Text by language. */
+  K.t = (es, en) => (K.en() ? en : es);
+  /* ¿Saltar las animaciones? La preferencia «reducir movimiento» es del computador de quien presenta, no de la sala:
+     por defecto las presentaciones animan siempre (body data-movimiento="siempre", que pone kit.py). Con
+     «movimiento: respetar» en el guion, se respeta la preferencia del sistema. La tecla M lo cambia en vivo. */
+  K.reducir = () => {
+    const m = document.body && document.body.dataset.movimiento;
+    if (m === "siempre") return false;
+    if (m === "nunca") return true;
+    try { return window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) { return false; }
+  };
+
+  /* Color aproximado de una longitud de onda (nm): regla aproximada de color visible. / Approximate visible-light color rule. */
+  K.colorLuz = function (nm, a = 1) {
+    let r = 0, g = 0, b = 0;
+    if (nm < 440) { r = -(nm - 440) / 60; b = 1; } else if (nm < 490) { g = (nm - 440) / 50; b = 1; }
+    else if (nm < 510) { g = 1; b = -(nm - 510) / 20; } else if (nm < 580) { r = (nm - 510) / 70; g = 1; }
+    else if (nm < 645) { r = 1; g = -(nm - 645) / 65; } else r = 1;
+    let f = 1; if (nm < 420) f = 0.45 + 0.55 * (nm - 380) / 40; if (nm > 700) f = 0.45 + 0.55 * (790 - nm) / 90;
+    const c = (v) => Math.round(255 * Math.pow(K.clamp(v * f, 0, 1), 0.8));
+    return `rgba(${c(r)},${c(g)},${c(b)},${a})`;
+  };
+
+  /* Degradado del espectro visible dentro de un <defs>: devuelve el id para usar en fill="url(#id)". */
+  K.degradadoEspectro = function (svg, id, lmin = 380, lmax = 788, opacidad = 1) {
+    let defs = svg.querySelector("defs") || K.svg("defs", {}, svg);
+    const g = K.svg("linearGradient", { id, x1: "0", x2: "1", y1: "0", y2: "0" }, defs);
+    for (let k = 0; k <= 40; k++) {
+      const nm = lmin + (lmax - lmin) * k / 40;
+      K.svg("stop", { offset: `${(k / 40) * 100}%`, "stop-color": K.colorLuz(nm, opacidad) }, g);
+    }
+    return id;
+  };
+
+  /* Interpola dos estados: números se mezclan, lo demás salta al destino. */
+  function mezclar(a, b, t) {
+    if (!a) return b;
+    const out = {};
+    for (const k in b) {
+      const va = a[k], vb = b[k];
+      if (typeof vb === "number" && typeof va === "number") out[k] = va + (vb - va) * t;
+      else if (Array.isArray(vb) && Array.isArray(va) && vb.length === va.length && typeof vb[0] === "number")
+        out[k] = vb.map((v, i) => va[i] + (v - va[i]) * t);
+      else out[k] = t < 0.5 && va !== undefined ? va : vb;
+    }
+    return out;
+  }
+  K.mezclar = mezclar;
+
+  K.escena = function (def) {
+    return function (slide, nivel, opciones = {}) {
+      const lienzo = slide.querySelector(".lienzo") || slide;
+      if (!lienzo._g) {
+        lienzo.innerHTML = "";
+        const svg = K.svg("svg", { viewBox: def.viewBox || "0 0 1920 1080", width: "100%", height: "100%",
+          preserveAspectRatio: def.aspecto || "xMidYMid meet" }, lienzo);
+        lienzo._svg = svg;
+        lienzo._g = def.montar(svg, slide) || {};
+        lienzo._t0 = Date.now();
+      }
+      const g = lienzo._g;
+      const N = def.estados.length - 1;
+      const destino = def.estados[Math.min(nivel, N)];
+      clearTimeout(lienzo._timer);
+      const desde = lienzo._estado;
+      const saltar = !desde || opciones.final || K.reducir() || nivel <= (lienzo._nivel ?? -1);
+      const dur = typeof def.duracion === "function" ? def.duracion(nivel) : (def.duracion ?? 1400);
+      const t0 = Date.now();
+      lienzo._nivel = nivel;
+      const activa = () => slide.classList.contains("activa");
+      const tick = () => {
+        const tv = (Date.now() - lienzo._t0) / 1000;
+        const p = saltar || dur <= 0 ? 1 : K.clamp((Date.now() - t0) / dur, 0, 1);
+        const est = p >= 1 ? destino : mezclar(desde, destino, K.suave(p));
+        lienzo._estado = est;
+        def.dibujar(g, est, nivel, opciones.final ? (def.tFinal ?? 0) : tv, opciones);
+        const sigue = p < 1 || (def.bucle && !opciones.final && !K.reducir());
+        if (sigue && activa()) lienzo._timer = setTimeout(tick, 16);
+      };
+      tick();
+    };
+  };
+})();
+
+</script>
+<script>
+/* =====================================================================
+   Animaciones del ejemplo «Exoplanetas» / Animations for the Exoplanets example.
+   Usa la librería del motor (motor/anim.js, window.K): cada escena es una lista de estados, uno por nivel, y una
+   función que dibuja un estado. Los textos salen en el idioma de la página con K.t(es, en).
+   Each scene is a list of states (one per step) and a draw function; labels follow the page language via K.t().
+
+   Física / Physics (cálculos en el navegador, con constantes públicas):
+   - Profundidad del tránsito = (R_planeta / R_estrella)^2, radios nominales de la IAU (2015):
+     R_Sol 695 700 km, R_Tierra 6 378,1 km, R_Júpiter 71 492 km → Tierra 84 ppm, Júpiter 1,06 %.
+   - Velocidad inducida en la estrella (tercera ley de Kepler, órbita circular):
+     K = (2πG/P)^(1/3) · m_p / (M_* + m_p)^(2/3) → Tierra 8,9 cm/s, Júpiter 12,5 m/s.
+   Lienzo: viewBox 1920×1080, la diapositiva entera; el título ocupa hasta y ≈ 300 y la fuente desde y ≈ 960.
+   ===================================================================== */
+(function () {
+  "use strict";
+  const { svg, texto, attr, lerp, clamp, coma, colorLuz, t: T } = K;
+  const V = (v) => `var(--${v})`;
+  const A = (window.animaciones = window.animaciones || {});
+
+  // ------------------------------------------------------------------ física
+  const R_SOL = 695700, R_TIERRA = 6378.1, R_JUP = 71492;
+  const G = 6.674e-11, M_SOL = 1.989e30, M_TIERRA = 5.972e24, M_JUP = 1.898e27, ANIO = 365.25 * 86400;
+  const kepler = (m, P) => Math.pow(2 * Math.PI * G / P, 1 / 3) * m / Math.pow(M_SOL + m, 2 / 3);
+  const PROF = { jup: Math.pow(R_JUP / R_SOL, 2), tierra: Math.pow(R_TIERRA / R_SOL, 2) };
+  const KV = { jup: kepler(M_JUP, 11.86 * ANIO), tierra: kepler(M_TIERRA, ANIO) };
+
+  // Líneas de absorción del Sol (Fraunhofer, nm) y líneas débiles ilustrativas con semilla fija.
+  const FRAUNHOFER = [393.4, 396.8, 410.2, 430.8, 434.0, 438.4, 486.1, 516.7, 517.3, 518.4, 527.0, 589.0, 589.6, 656.3, 759.4];
+  let semilla = 11;
+  const azar = () => ((semilla = (semilla * 16807) % 2147483647) / 2147483647);
+  const DEBILES = Array.from({ length: 140 }, () => [380 + 408 * azar(), 0.15 + 0.35 * azar()]);
+  const gauss = (() => { const g = []; for (let i = 0; i < 4000; i++) { const u = azar() || 1e-9, v = azar();
+    g.push(Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)); } return g; })();
+
+  function montarEspectro(padre, x, y, w, h, id) {
+    const g = svg("g", {}, padre);
+    const raiz = padre.ownerSVGElement || padre;
+    K.degradadoEspectro(raiz, id);
+    svg("rect", { x, y, width: w, height: h, rx: 4, fill: `url(#${id})` }, g);
+    const lineas = svg("g", {}, g);
+    const nm2x = (nm) => x + (nm - 380) / 408 * w;
+    const els = [];
+    for (const [nm, prof] of DEBILES) els.push([svg("rect", { y, height: h, width: 2, fill: "#05080f", opacity: prof }, lineas), nm]);
+    for (const nm of FRAUNHOFER) els.push([svg("rect", { y, height: h, width: 4, fill: "#05080f", opacity: 0.92 }, lineas), nm]);
+    const clip = svg("clipPath", { id: id + "-c" }, raiz.querySelector("defs"));
+    svg("rect", { x, y, width: w, height: h, rx: 4 }, clip);
+    lineas.setAttribute("clip-path", `url(#${id}-c)`);
+    return { mover(dx) { for (const [e, nm] of els) e.setAttribute("x", nm2x(nm) + dx); } };
+  }
+  const etiqueta = (padre, x, y, txt, tam = 24, color = "tinta-suave", ancla = "start") =>
+    texto(padre, x, y, txt, { "text-anchor": ancla, style: `fill:${V(color)};font-size:${tam}px` });
+
+  // ================================================================ 1. portada
+  A.portada = K.escena({
+    estados: [{}], bucle: true,
+    montar(s) {
+      const g = { esp: montarEspectro(s, 0, 742, 1920, 150, "esp-portada") };
+      etiqueta(s, 120, 930, "380 nm", 20); etiqueta(s, 1800, 930, "788 nm", 20, "tinta-suave", "end");
+      return g;
+    },
+    dibujar(g, est, n, t) { g.esp.mover(9 * Math.sin(2 * Math.PI * t / 7)); },
+  });
+
+  // ================================================================ 2. tránsito
+  A.transito = K.escena({
+    estados: [{ rp: Math.sqrt(PROF.jup), prof: PROF.jup, esc: 1 }, { rp: Math.sqrt(PROF.tierra), prof: PROF.tierra, esc: 0 }],
+    duracion: 1600, bucle: true, tFinal: 4,
+    montar(s) {
+      const g = { E: { x: 480, y: 610, r: 230 } };
+      const defs = svg("defs", {}, s);
+      const rg = svg("radialGradient", { id: "disco" }, defs);   // oscurecimiento hacia el borde (ilustrativo)
+      svg("stop", { offset: "0%", "stop-color": "#fff4d8" }, rg);
+      svg("stop", { offset: "70%", "stop-color": "#ffc861" }, rg);
+      svg("stop", { offset: "100%", "stop-color": "#d9822b" }, rg);
+      svg("circle", { cx: g.E.x, cy: g.E.y, r: g.E.r, fill: "url(#disco)" }, s);
+      g.planeta = svg("circle", { style: "fill:#0a1020" }, s);
+      g.marca = svg("circle", { r: 18, style: `fill:none;stroke:${V("acento-2")};stroke-width:3` }, s);
+      g.nombre = etiqueta(s, g.E.x, g.E.y + g.E.r + 60, "", 28, "tinta", "middle");
+      // curva de luz
+      g.ej = { X0: 940, X1: 1800, Y0: 470, H: 300 };
+      const { X0, X1, Y0, H } = g.ej;
+      svg("line", { x1: X0, x2: X1, y1: Y0, y2: Y0, style: `stroke:${V("linea")};stroke-width:2;stroke-dasharray:6 8` }, s);
+      svg("line", { x1: X0, x2: X1, y1: Y0 + H, y2: Y0 + H, style: `stroke:${V("linea")};stroke-width:2;stroke-dasharray:6 8` }, s);
+      etiqueta(s, X0, Y0 - 50, T("brillo de la estrella", "brightness of the star"), 24);
+      etiqueta(s, X0 - 16, Y0 + 8, "100 %", 22, "tinta-suave", "end");
+      g.fondoEje = etiqueta(s, X0 - 16, Y0 + H + 8, "", 22, "acento", "end");
+      etiqueta(s, X1, Y0 + H + 60, T("tiempo →", "time →"), 22, "tinta-suave", "end");
+      g.traza = svg("path", { fill: "none", style: `stroke:${V("acento")};stroke-width:4` }, s);
+      g.punto = svg("circle", { r: 10, style: `fill:${V("acento")}` }, s);
+      g.prof = etiqueta(s, X1, Y0 - 50, "", 30, "acento", "end");
+      return g;
+    },
+    dibujar(g, est, n, t) {
+      const P = 6, frac = Math.min(0.999, (t % P) / P), E = g.E, { X0, X1, Y0, H } = g.ej;
+      const rpx = Math.max(2.2, est.rp * E.r);
+      const posX = (f) => E.x - 1.5 * E.r + 3 * E.r * f;           // el planeta cruza de izquierda a derecha
+      const bloqueo = (f) => {                                      // fracción tapada (borde lineal, sin oscurecimiento)
+        const d = Math.abs(posX(f) - E.x), r = E.r, p = est.rp * r;
+        if (d >= r + p) return 0;
+        if (d <= r - p) return est.prof;
+        return est.prof * (r + p - d) / (2 * p);
+      };
+      attr(g.planeta, { cx: posX(frac), cy: E.y + 30, r: rpx });
+      attr(g.marca, { cx: posX(frac), cy: E.y + 30 });
+      g.marca.style.opacity = est.esc < 0.5 ? 1 : 0;
+      // la escala vertical: la profundidad del planeta actual ocupa la altura H
+      const escala = H / est.prof;
+      let d = "";
+      for (let k = 0; k <= 160; k++) { const f = k / 160 * frac;
+        d += (k ? "L" : "M") + (X0 + (X1 - X0) * f).toFixed(1) + " " + (Y0 + bloqueo(f) * escala).toFixed(1); }
+      g.traza.setAttribute("d", d);
+      attr(g.punto, { cx: X0 + (X1 - X0) * frac, cy: Y0 + bloqueo(frac) * escala });
+      const jup = est.esc > 0.5;
+      g.nombre.textContent = jup ? T("un planeta como Júpiter", "a Jupiter-sized planet") : T("un planeta como la Tierra (marcado)", "an Earth-sized planet (circled)");
+      g.fondoEje.textContent = jup ? "−1,06 %".replace(",", K.en() ? "." : ",") : "−84 ppm";
+      g.prof.textContent = jup ? T("se apaga 1,06 %", "dims by 1.06 %") : T("se apaga 84 partes por millón", "dims by 84 parts per million");
+    },
+  });
+
+  // ================================================================ 3. órbita
+  A.orbita = K.escena({
+    estados: [{ curva: 0, esp: 0 }, { curva: 1, esp: 0 }, { curva: 1, esp: 1 }],
+    duracion: 900, bucle: true, tFinal: 8.95,
+    montar(s) {
+      const g = {}, C = { x: 470, y: 640 };
+      g.C = C;
+      svg("circle", { cx: C.x, cy: C.y, r: 250, fill: "none", style: `stroke:${V("linea")};stroke-width:2;stroke-dasharray:4 8` }, s);
+      svg("circle", { cx: C.x, cy: C.y, r: 5, style: `fill:${V("tinta-suave")}` }, s);
+      etiqueta(s, C.x + 12, C.y - 10, T("centro de masa", "center of mass"), 22);
+      const defs = svg("defs", {}, s);
+      const rg = svg("radialGradient", { id: "brillo" }, defs);
+      svg("stop", { offset: "0%", "stop-color": "#ffe1a1" }, rg);
+      svg("stop", { offset: "45%", "stop-color": "#f5a623" }, rg);
+      svg("stop", { offset: "100%", "stop-color": "#f5a623", "stop-opacity": 0 }, rg);
+      g.estrella = svg("circle", { r: 70, fill: "url(#brillo)" }, s);
+      g.planeta = svg("circle", { r: 13, style: `fill:${V("acento-2")}` }, s);
+      etiqueta(s, C.x, 930, T("↓ hacia nosotros", "↓ towards us"), 24, "tinta-suave", "middle");
+      g.curvaG = svg("g", {}, s);
+      const X0 = 900, X1 = 1800, Y0 = 560, AMP = 150;
+      g.ej = { X0, X1, Y0, AMP };
+      svg("line", { x1: X0, x2: X1, y1: Y0, y2: Y0, style: `stroke:${V("linea")};stroke-width:2` }, g.curvaG);
+      etiqueta(g.curvaG, X0, Y0 - AMP - 34, T("velocidad hacia nosotros", "velocity towards us"), 24);
+      etiqueta(g.curvaG, X1, Y0 + 44, T("tiempo: un año →", "time: one year →"), 22, "tinta-suave", "end");
+      etiqueta(g.curvaG, X0 - 14, Y0 - AMP + 8, `+${coma(KV.tierra * 100, 1)} cm/s`, 22, "acento", "end");
+      etiqueta(g.curvaG, X0 - 14, Y0 + AMP + 8, `−${coma(KV.tierra * 100, 1)} cm/s`, 22, "acento", "end");
+      g.traza = svg("path", { fill: "none", style: `stroke:${V("acento")};stroke-width:4` }, g.curvaG);
+      g.punto = svg("circle", { r: 10, style: `fill:${V("acento")}` }, g.curvaG);
+      g.espG = svg("g", {}, s);
+      g.esp = montarEspectro(g.espG, X0, 790, X1 - X0, 90, "esp-orbita");
+      g.sentido = etiqueta(g.espG, X0, 925, "", 24, "tinta");
+      return g;
+    },
+    dibujar(g, est, n, t) {
+      const P = 9, th = 2 * Math.PI * t / P, C = g.C;
+      attr(g.planeta, { cx: C.x + 250 * Math.cos(th), cy: C.y + 250 * Math.sin(th) });
+      attr(g.estrella, { cx: C.x - 40 * Math.cos(th), cy: C.y - 40 * Math.sin(th) });
+      const v = -Math.cos(th), { X0, X1, Y0, AMP } = g.ej, frac = Math.min(0.999, (t % P) / P);
+      let d = "";
+      for (let k = 0; k <= 120; k++) { const f = k / 120 * frac;
+        d += (k ? "L" : "M") + (X0 + (X1 - X0) * f).toFixed(1) + " " + (Y0 + AMP * Math.cos(th - 2 * Math.PI * (frac - f))).toFixed(1); }
+      g.traza.setAttribute("d", d);
+      attr(g.punto, { cx: X0 + (X1 - X0) * frac, cy: Y0 - AMP * v });
+      g.curvaG.style.opacity = est.curva; g.espG.style.opacity = est.esp;
+      g.esp.mover(-14 * v);
+      g.sentido.textContent = v > 0.3 ? T("se acerca: las líneas se corren al azul ←", "approaching: lines shift to the blue ←")
+        : v < -0.3 ? T("se aleja: las líneas se corren al rojo →", "receding: lines shift to the red →") : "";
+    },
+  });
+
+  // ================================================================ 4. líneas
+  A.lineas = K.escena({
+    estados: [{ e: 0 }, { e: 1 }, { e: 2 }, { e: 3.301 }],          // N = 10^e: 1, 10, 100, 2000
+    duracion: 1800,
+    montar(s) {
+      const g = { filas: [] };
+      for (let k = 0; k < 12; k++) g.filas.push(svg("path", { fill: "none", style: `stroke:${V("acento-2")};stroke-width:2` }, s));
+      g.mas = etiqueta(s, 140, 935, "", 24);
+      svg("line", { x1: 1060, x2: 1800, y1: 460, y2: 460, style: `stroke:${V("linea")};stroke-width:2` }, s);
+      g.suma = svg("path", { fill: "none", style: `stroke:${V("acento")};stroke-width:5` }, s);
+      g.err = svg("line", { y1: 820, y2: 820, style: `stroke:${V("acento")};stroke-width:6;stroke-linecap:round` }, s);
+      svg("line", { x1: 1430, x2: 1430, y1: 380, y2: 860, style: `stroke:${V("tinta-suave")};stroke-dasharray:6 6;stroke-width:2` }, s);
+      g.N = texto(s, 1060, 380, "", { style: `fill:${V("tinta")};font-size:40px;font-weight:600` });
+      g.etq = etiqueta(s, 1430, 880, "", 26, "acento", "middle");
+      return g;
+    },
+    dibujar(g, est) {
+      const N = Math.round(Math.pow(10, est.e));
+      const perfil = (i) => 1 - 0.4 * Math.exp(-Math.pow((i - 50) / 7, 2) / 2);
+      const miles = (n) => n.toLocaleString(K.en() ? "en-US" : "es-CL");
+      g.filas.forEach((f, k) => {
+        if (k >= N) { f.style.opacity = 0; return; }
+        const y0 = 360 + k * 48, h = 40; let d = "";
+        for (let i = 0; i <= 100; i++) { const val = perfil(i) + 0.14 * gauss[(k * 101 + i) % gauss.length];
+          d += (i ? "L" : "M") + (140 + 7.4 * i).toFixed(1) + " " + (y0 + h * (1 - val)).toFixed(1); }
+        f.setAttribute("d", d); f.style.opacity = N === 1 ? 1 : 0.75;
+        if (N === 1) f.setAttribute("transform", "translate(0 200)"); else f.removeAttribute("transform");
+      });
+      g.mas.textContent = N > 12 ? T(`… y ${miles(N - 12)} líneas más`, `… and ${miles(N - 12)} more lines`)
+        : N === 1 ? T("una sola línea, con ruido de fotones", "a single line, with photon noise") : "";
+      let d = ""; const ruido = 0.14 / Math.sqrt(N);
+      for (let i = 0; i <= 100; i++) { const val = perfil(i) + ruido * gauss[(2000 + i) % gauss.length];
+        d += (i ? "L" : "M") + (1060 + 7.4 * i).toFixed(1) + " " + (460 + 600 * (1 - val)).toFixed(1); }
+      g.suma.setAttribute("d", d);
+      const sigma = 220 / Math.sqrt(N);
+      attr(g.err, { x1: 1430 - sigma, x2: 1430 + sigma });
+      g.N.textContent = `N = ${miles(N)} ${N === 1 ? T("línea", "line") : T("líneas", "lines")}`;
+      g.etq.textContent = N === 1 ? T("error de la velocidad", "velocity error") : `${T("error", "error")} ÷ ${coma(Math.sqrt(N), 1)}`;
+    },
+  });
+
+  // ================================================================ 5. escala
+  A.escala = K.escena({
+    estados: [{ u: 0, tierra: 0 }, { u: 1, tierra: 1 }],
+    duracion: 2600,
+    montar(s) {
+      const g = {};
+      g.ejes = [
+        { y: 470, lo: -2.5, hi: 2.3, ticks: [[-2, "1 cm/s"], [-1, "10 cm/s"], [0, "1 m/s"], [1, "10 m/s"], [2, "100 m/s"]],
+          titulo: T("cuánto se mece la estrella (velocidad)", "how much the star wobbles (velocity)"),
+          jup: Math.log10(KV.jup), tierra: Math.log10(KV.tierra) },
+        { y: 800, lo: -5.4, hi: -0.6, ticks: [[-5, "10 ppm"], [-4, "100 ppm"], [-3, "0,1 %"], [-2, "1 %"], [-1, "10 %"]],
+          titulo: T("cuánto se apaga en el tránsito (profundidad)", "how much it dims in transit (depth)"),
+          jup: Math.log10(PROF.jup), tierra: Math.log10(PROF.tierra) },
+      ];
+      const X0 = 160, X1 = 1760;
+      g.X = (e, v) => X0 + (X1 - X0) * (v - e.lo) / (e.hi - e.lo);
+      g.ejes.forEach((e) => {
+        svg("line", { x1: X0, x2: X1, y1: e.y, y2: e.y, style: `stroke:${V("linea")};stroke-width:3` }, s);
+        etiqueta(s, X0, e.y - 110, e.titulo, 26, "tinta");
+        for (const [v, txt] of e.ticks) {
+          svg("line", { x1: g.X(e, v), x2: g.X(e, v), y1: e.y, y2: e.y + 14, style: `stroke:${V("tinta-suave")};stroke-width:2` }, s);
+          etiqueta(s, g.X(e, v), e.y + 48, K.en() ? txt.replace(",", ".") : txt, 22, "tinta-suave", "middle");
+        }
+        svg("circle", { cx: g.X(e, e.jup), cy: e.y, r: 18, style: `fill:${V("acento")}` }, s);
+        etiqueta(s, g.X(e, e.jup), e.y - 34, T("Júpiter", "Jupiter"), 24, "acento", "middle");
+        e.flecha = svg("line", { y1: e.y - 4, y2: e.y - 4, style: `stroke:${V("acento-2")};stroke-width:3;stroke-dasharray:8 6` }, s);
+        e.punto = svg("circle", { cy: e.y, r: 18, style: `fill:${V("acento-2")}` }, s);
+        e.nombre = etiqueta(s, 0, e.y - 34, T("Tierra", "Earth"), 24, "acento-2", "middle");
+        e.razon = etiqueta(s, 0, e.y - 20, "", 30, "tinta", "middle");
+      });
+      return g;
+    },
+    dibujar(g, est) {
+      g.ejes.forEach((e) => {
+        const xj = g.X(e, e.jup), xt = g.X(e, lerp(e.jup, e.tierra, est.u));
+        attr(e.punto, { cx: xt }); attr(e.nombre, { x: xt });
+        attr(e.flecha, { x1: xt, x2: xj });
+        e.punto.style.opacity = e.nombre.style.opacity = e.flecha.style.opacity = est.tierra;
+        const r = Math.pow(10, (e.jup - e.tierra) * est.u);
+        attr(e.razon, { x: (xt + xj) / 2, y: e.y + 100 });
+        e.razon.textContent = est.u > 0.05 ? `÷ ${Math.round(r)}` : "";
+      });
+    },
+  });
+})();
+
+</script>
+<script>
+/* =====================================================================
+   Motor de kit-presentaciones — navegación, pasos, notas. / Engine: navigation, steps, notes.
+   Estructura que espera:
+     <div class="escenario"> <section class="slide">…</section> … </div>
+   Teclas: → / espacio / clic avanzan (primero los pasos), ← retrocede,
+   Inicio/Fin, N notas, P vista del orador, B pantalla negra, ? ayuda.
+   Animaciones: una diapositiva con data-anim="nombre" llama a
+   window.animaciones.nombre(slide, nivel, {final}) cada vez que cambia
+   su nivel de pasos. La función debe dibujar el ESTADO de ese nivel
+   (idempotente); el PDF la llama con el último nivel y final = true.
+   ===================================================================== */
+(function () {
+  "use strict";
+  const escenario = document.querySelector(".escenario");
+  const slides = Array.from(document.querySelectorAll(".escenario > .slide"));
+  if (!escenario || !slides.length) return;
+  const animaciones = (window.animaciones = window.animaciones || {});
+  const imprimir = /[?&]imprimir\b/.test(location.search);
+  let actual = 0;
+  let ventanaOrador = null;
+  const inicio = Date.now();
+
+  // --- Escala del escenario fijo a la ventana --------------------------
+  function escalar() {
+    const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    escenario.style.transform = `translate(-50%, -50%) scale(${s})`;
+  }
+
+  // --- Pasos ------------------------------------------------------------
+  const pasos = (sl) => Array.from(sl.querySelectorAll("[data-paso]"));
+  const nivel = (sl) => Number(sl.dataset.nivel || 0);
+  const maximo = (sl) => Math.max(0, Number(sl.dataset.pasos || 0), ...pasos(sl).map((e) => Number(e.dataset.paso)));
+
+  function aplicar(sl, opciones = {}) {
+    const n = nivel(sl);
+    pasos(sl).forEach((e) => e.classList.toggle("visto", Number(e.dataset.paso) <= n));
+    const f = animaciones[sl.dataset.anim];
+    if (typeof f === "function") {
+      try { f(sl, n, opciones); } catch (err) { console.error("Animación", sl.dataset.anim, err); }
+    }
+  }
+
+  // --- Ir a una diapositiva ----------------------------------------------
+  function ir(k, n = 0) {
+    k = Math.max(0, Math.min(slides.length - 1, k));
+    slides[actual].classList.remove("activa");
+    actual = k;
+    const sl = slides[actual];
+    sl.dataset.nivel = String(Math.max(0, Math.min(n, maximo(sl))));
+    sl.classList.add("activa");
+    aplicar(sl);
+    if (location.hash !== "#" + (actual + 1)) history.replaceState(null, "", "#" + (actual + 1));
+    refrescarNotas();
+  }
+  function siguiente() {
+    const sl = slides[actual];
+    if (nivel(sl) < maximo(sl)) { sl.dataset.nivel = String(nivel(sl) + 1); aplicar(sl); refrescarNotas(); }
+    else if (actual < slides.length - 1) ir(actual + 1, 0);
+  }
+  function anterior() {
+    const sl = slides[actual];
+    if (nivel(sl) > 0) { sl.dataset.nivel = String(nivel(sl) - 1); aplicar(sl); refrescarNotas(); }
+    else if (actual > 0) ir(actual - 1, maximo(slides[actual - 1]));
+  }
+
+  // --- Notas: panel abajo (ensayo) y ventana del orador (charla) --------
+  const panel = document.createElement("div");
+  panel.id = "panel-notas";
+  document.body.appendChild(panel);
+  const negra = document.createElement("div");
+  negra.className = "pantalla-negra";
+  document.body.appendChild(negra);
+  const ayuda = document.createElement("div");
+  ayuda.id = "ayuda-motor";
+  ayuda.innerHTML = document.documentElement.lang === "en"
+    ? "<b>Keys</b><br>→ space click: next · ←: back · Home / End<br>" +
+      "N: notes below · P: presenter view (new window) · B: black screen · F: full screen<br>" +
+      "E: study mode (shows «why it works» in the example decks) · M: animations on/off · ?: this help"
+    : "<b>Teclas</b><br>→ espacio clic: avanzar · ←: retroceder · Inicio / Fin<br>" +
+      "N: notas abajo · P: vista del orador (otra ventana) · B: pantalla negra · F: pantalla completa<br>" +
+      "E: modo estudio (muestra «por qué funciona» en las presentaciones de ejemplo) · M: animaciones sí/no · ?: esta ayuda";
+  document.body.appendChild(ayuda);
+
+  function aviso(txt) {
+    let a = document.getElementById("aviso-motor");
+    if (!a) {
+      a = document.createElement("div"); a.id = "aviso-motor";
+      a.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:40;background:rgba(20,20,20,.9);" +
+        "color:#fff;font:16px system-ui,sans-serif;padding:8px 16px;border-radius:6px;transition:opacity .4s";
+      document.body.appendChild(a);
+    }
+    a.textContent = txt; a.style.opacity = 1;
+    clearTimeout(a._t); a._t = setTimeout(() => (a.style.opacity = 0), 1800);
+  }
+
+  const textoNotas = (sl) => { const a = sl && sl.querySelector("aside.notas"); return a ? a.innerHTML : "<i>(sin notas)</i>"; };
+  const tituloDe = (sl) => { const h = sl && sl.querySelector("h1"); return h ? h.textContent.trim() : "(sin título)"; };
+
+  function refrescarNotas() {
+    const sl = slides[actual];
+    panel.innerHTML = `<b>${actual + 1}/${slides.length} · paso ${nivel(sl)}/${maximo(sl)}</b> — ${textoNotas(sl)}`;
+    if (ventanaOrador && !ventanaOrador.closed) {
+      const d = ventanaOrador.document;
+      const sig = slides[actual + 1];
+      d.getElementById("o-num").textContent = `${actual + 1} / ${slides.length}  ·  paso ${nivel(sl)} de ${maximo(sl)}`;
+      d.getElementById("o-titulo").textContent = tituloDe(sl);
+      d.getElementById("o-notas").innerHTML = textoNotas(sl);
+      d.getElementById("o-sig").textContent = sig ? "Sigue: " + tituloDe(sig) : "Última diapositiva";
+    }
+  }
+  function abrirOrador() {
+    ventanaOrador = window.open("", "orador", "width=900,height=640");
+    if (!ventanaOrador) { alert("El navegador bloqueó la ventana del orador."); return; }
+    ventanaOrador.document.write(`<!doctype html><meta charset="utf-8"><title>Orador</title>
+      <body style="font:20px/1.5 system-ui,sans-serif;margin:24px;background:#141414;color:#eee">
+      <div style="display:flex;justify-content:space-between;color:#aaa"><span id="o-num"></span><span id="o-reloj"></span></div>
+      <h2 id="o-titulo" style="font-size:28px;margin:12px 0 18px"></h2>
+      <div id="o-notas" style="font-size:22px"></div>
+      <p id="o-sig" style="color:#9ab;margin-top:28px"></p>
+      <p style="color:#777;font-size:14px">Las teclas funcionan también en esta ventana.</p></body>`);
+    ventanaOrador.document.close();
+    ventanaOrador.addEventListener("keydown", teclas);
+    const reloj = () => {
+      if (!ventanaOrador || ventanaOrador.closed) return;
+      const s = Math.floor((Date.now() - inicio) / 1000);
+      ventanaOrador.document.getElementById("o-reloj").textContent =
+        `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+      setTimeout(reloj, 1000);
+    };
+    reloj();
+    refrescarNotas();
+  }
+
+  // --- Teclado, clic y gestos -------------------------------------------
+  function teclas(e) {
+    if (e.target && /input|textarea|select/i.test(e.target.tagName)) return;
+    const k = e.key;
+    if (["ArrowRight", "PageDown", " ", "Enter"].includes(k)) { e.preventDefault(); siguiente(); }
+    else if (["ArrowLeft", "PageUp", "Backspace"].includes(k)) { e.preventDefault(); anterior(); }
+    else if (k === "Home") ir(0);
+    else if (k === "End") ir(slides.length - 1, maximo(slides[slides.length - 1]));
+    else if (k === "n" || k === "N") panel.classList.toggle("abierto");
+    else if (k === "p" || k === "P") abrirOrador();
+    else if (k === "b" || k === "B" || k === ".") negra.classList.toggle("activa");
+    else if (k === "f" || k === "F") { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+    else if (k === "?") ayuda.classList.toggle("abierto");
+    else if (k === "e" || k === "E") document.body.classList.toggle("estudio");
+    else if (k === "m" || k === "M") {
+      const b = document.body.dataset;
+      b.movimiento = b.movimiento === "nunca" ? "siempre" : "nunca";
+      aviso(b.movimiento === "nunca" ? "Animaciones apagadas (M para encender)" : "Animaciones encendidas");
+      ir(actual, nivel(slides[actual]));
+    }
+  }
+  document.addEventListener("keydown", teclas);
+  document.addEventListener("click", (e) => {
+    if (e.target.closest("a, button, input, select, textarea, .interactivo")) return;
+    (e.clientX < window.innerWidth * 0.25 ? anterior : siguiente)();
+  });
+  let x0 = null;
+  document.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener("touchend", (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) (dx < 0 ? siguiente : anterior)();
+    x0 = null;
+  });
+  window.addEventListener("resize", escalar);
+  window.addEventListener("hashchange", () => {
+    const k = parseInt(location.hash.slice(1), 10) - 1;
+    if (Number.isFinite(k) && k !== actual) ir(k);
+  });
+
+  // --- Decoración que pide el perfil: número y logo ---------------------
+  const logo = document.body.dataset.logo;
+  slides.forEach((sl, i) => {
+    const num = document.createElement("div");
+    num.className = "numero-slide";
+    num.textContent = String(i + 1);
+    sl.appendChild(num);
+    if (logo) {
+      const img = document.createElement("img");
+      img.className = "logo-perfil"; img.src = logo; img.alt = "";
+      sl.appendChild(img);
+    }
+  });
+
+  // --- Modo impresión (lo usa kit.py pdf): todo en su estado final ------
+  function estadoFinal() {
+    slides.forEach((sl) => { sl.dataset.nivel = String(maximo(sl)); aplicar(sl, { final: true }); });
+  }
+  window.addEventListener("beforeprint", estadoFinal);
+
+  // --- Arranque ----------------------------------------------------------
+  escalar();
+  if (/[?&]solo-lienzo\b/.test(location.search)) document.body.classList.add("solo-lienzo");
+  if (imprimir) { document.documentElement.classList.add("imprimiendo"); document.body.classList.remove("fundido"); estadoFinal(); }
+  const h = parseInt(location.hash.slice(1), 10);
+  slides.forEach((sl) => sl.classList.remove("activa"));
+  ir(Number.isFinite(h) ? h - 1 : 0);
+  if (imprimir) estadoFinal();
+  window.deck = { ir, siguiente, anterior, slides, nivel: () => nivel(slides[actual]), actual: () => actual };
+})();
+
+</script>
+</body>
+</html>

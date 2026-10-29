@@ -1,0 +1,40 @@
+nombre: sobrio
+descripcion: 'El perfil por defecto. Papel claro, tinta casi negra, un solo acento
+  azul para lo que importa y un segundo acento (ladrillo) solo para advertencias y
+  contrastes. Serif en los títulos-afirmación, sans en el resto. Tipografías que ya
+  trae Windows, para que funcione sin internet y en cualquier proyector. Títulos en
+  Cambria y no en Georgia: Georgia dibuja los números «a la antigua» (300 se lee «3oo»),
+  mal para títulos con cifras. / Default profile: light paper, near-black ink, one
+  blue accent for what matters and a brick accent only for warnings. Fonts shipped
+  with Windows; Cambria titles because Georgia uses old-style numerals.'
+origen: kit-presentaciones
+colores:
+  fondo: '#fbfaf7'
+  tinta: '#1c2127'
+  tinta_suave: '#5b6570'
+  acento: '#1f5f8b'
+  acento_2: '#b4532a'
+  linea: '#d9d4ca'
+  marco: '#1c2127'
+  serie:
+  - '#1f5f8b'
+  - '#b4532a'
+  - '#5b6570'
+  - '#6f8f3a'
+  - '#8a5a9e'
+fuentes:
+  titulo: Cambria, 'Times New Roman', serif
+  texto: '''Segoe UI'', system-ui, -apple-system, sans-serif'
+  mono: Consolas, 'Courier New', monospace
+  pptx_titulo: Cambria
+  pptx_texto: Segoe UI
+  figuras:
+  - Segoe UI
+  - Arial
+tamanos:
+  titulo: 60
+  texto: 34
+  peso_titulo: 600
+logo: null
+plantilla_pptx: null
+layout_pptx: null

@@ -1,0 +1,14 @@
+/* Ajustes de la versión expresiva (el perfil «noche» pone colores y tipografías) / Expressive-register tweaks (the «noche» profile sets colors and fonts).
+   Profundidad: un cielo que se oscurece hacia los bordes, en vez de un fondo plano. */
+.slide {
+  background-color: var(--fondo);
+  background-image: radial-gradient(ellipse 85% 75% at 50% 38%, #13274a 0%, #0a1628 58%, #050b16 100%);
+}
+/* Edge deja una raya blanca al rasterizar este degradado en el PDF: al imprimir, fondo liso del perfil. */
+@media print { .slide { background-image: none; } }
+.slide.completa h1 { max-width: 1500px; text-shadow: 0 2px 18px rgba(5, 11, 22, 0.85); }
+.slide.portada h1 { font-size: 92px; margin-top: -220px; }
+.slide.portada .subtitulo { color: var(--acento); }
+.slide .fuente { color: #8091a8; }
+/* Las diapositivas quietas (texto) resaltan el término clave con el ámbar. */
+.slide.texto .cuerpo.columna b.acento { color: var(--acento); }
