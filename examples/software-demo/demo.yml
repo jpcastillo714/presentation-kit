@@ -1,0 +1,29 @@
+title: Fitting a line hides what the residuals show
+url: app/index.html
+viewport: [1600, 900]
+output: figures/demo_residuals
+label: Recorded from examples/software-demo/app/index.html
+steps:
+  - caption: The dashboard opens on dataset I
+    hold: 1600
+  - click: "#fit"
+    caption: Fit a line to dataset I
+    hold: 1200
+  - zoom: "#stats"
+    caption: "r = 0.816"
+    hold: 1800
+  - select: {selector: "#dataset", value: "II"}
+    caption: Switch to dataset II
+    hold: 1000
+  - zoom: "#stats"
+    caption: The same r and the same line
+    hold: 2000
+  - click: "#residuals"
+    caption: Show the residuals
+    hold: 600
+  - zoom: "#resid-card"
+    caption: The residuals form a curve
+    hold: 2600
+  - view: full
+    caption: Plot the residuals before you trust r
+    hold: 1800

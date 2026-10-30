@@ -9,11 +9,15 @@ congreso); y el mismo guion produce una **presentación HTML** (animaciones, vis
 internet, PDF) y un **.pptx editable**.
 
 Trae una **skill** para agentes de IA (formato de Claude Code, la puede leer cualquier agente) para pedirle a un
-asistente que arme presentaciones con el kit, y dos ejemplos completos para dárselos a un modelo como referencia.
+asistente que arme presentaciones con el kit (lo primero que hace es preguntar qué quieres obtener), y ejemplos
+completos para dárselos a un modelo como referencia.
 
 | Registro sobrio | Registro expresivo |
 |---|---|
 | [`examples/anscombe`](examples/anscombe): fondo claro, figuras fijas, una idea por diapositiva. El cuarteto de Anscombe (1973). | [`examples/exoplanets`](examples/exoplanets): perfil de cielo nocturno, figuras a pantalla completa, cinco escenas animadas. Cómo se encuentran planetas que no se ven. |
+
+Un tercer ejemplo, [`examples/software-demo`](examples/software-demo), muestra un panel en una charla: el video de
+su diapositiva se graba desde la aplicación funcionando, con acercamiento y cursor donde ocurren los clics.
 
 Cada carpeta de ejemplo trae la presentación como un solo `.html`, más su `.pdf` y su `.pptx`. Abre el `.html` en el
 navegador y avanza con las flechas.
@@ -23,10 +27,12 @@ navegador y avanza con las flechas.
 ```
 presentation-kit/
 ├─ PRINCIPLES.md            15 principios con su evidencia, la regla de cuándo animar y una lista de revisión
-├─ docs/                    las fuentes: 26 gráficos y 34 charlas reconocidos, con enlaces y estado de verificación
+├─ docs/                    las fuentes: 26 gráficos, 34 charlas y 20 demostraciones de software reconocidos,
+│                           con enlaces y estado de verificación
 ├─ examples/                presentaciones con un «por qué funciona» en cada diapositiva (tecla E)
 │  ├─ anscombe/             registro sobrio
-│  └─ exoplanets/           registro expresivo (escenas animadas)
+│  ├─ exoplanets/           registro expresivo (escenas animadas)
+│  └─ software-demo/        una charla que muestra una interfaz: una aplicación real y su video grabado
 ├─ profiles/                el aspecto: colores, tipografías, logo, fondo, plantilla .pptx opcional
 │  ├─ sober/                por defecto: papel claro, un acento
 │  └─ night/                cielo nocturno, acento ámbar
@@ -34,6 +40,7 @@ presentation-kit/
 │  ├─ kit.py                todos los comandos
 │  ├─ deck.css, deck.js     escenario 1920×1080, pasos, notas, vista del orador, impresión/PDF
 │  ├─ anim.js               librería de animación: escenas con un estado por paso
+│  ├─ demo.py               graba videos de demostración desde una aplicación web funcionando
 │  └─ figures.py            matplotlib con el estilo del perfil
 └─ skill/presentation-kit/  la skill para agentes
 ```
@@ -50,7 +57,11 @@ git clone https://github.com/jpcastillo714/presentation-kit.git
 pip install -r presentation-kit/requirements.txt
 ```
 
-Opcional: PowerPoint en Windows, solo para `render` (pasar el `.pptx` a imágenes para revisarlo).
+Opcional:
+
+- PowerPoint en Windows, solo para `render` (pasar el `.pptx` a imágenes para revisarlo).
+- Para los videos de demostración (`demo`): [ffmpeg](https://ffmpeg.org) en el PATH (o en `KIT_FFMPEG`).
+  Playwright viene en `requirements.txt` y usa el navegador que ya tienes; no hace falta `playwright install`.
 
 ## Uso rápido
 
@@ -85,6 +96,7 @@ python engine/kit.py pdf mi_charla/deck.es.html
 | `profile --from ref.pptx --name lab` | Perfil desde una presentación de referencia: tema y colores realmente usados, tipografías, logos, fondo, plantilla |
 | `profile --regenerate <carpeta>` | Reescribe `profile.css` y `figures.mplstyle` después de editar `profile.yml` |
 | `render` | `.pptx` → PNG con PowerPoint (solo Windows) |
+| `demo <carpeta>/demo.yml` | Video de demostración (MP4 + póster) grabado desde la aplicación real funcionando |
 
 Los comandos y opciones también aceptan alias en español (`construir`, `revisar`, `--perfil`…).
 
@@ -106,7 +118,7 @@ transition: fade        # opcional: la única transición permitida
 ```
 
 Claves: `@type cover|section|figure|two|number|text`, `@figure`, `@source`, `@number`, `@anim`, `@steps N`,
-`@static`, `@subtitle`, `@kicker`, `@class full`, `@appendix`, `@why`. También se aceptan en español (`@figura`,
+`@static`, `@subtitle`, `@kicker`, `@class full`, `@video`, `@appendix`, `@why`. También se aceptan en español (`@figura`,
 `@fuente`, `@cifra`, `@porque`…). Las líneas con `- ` son viñetas, con `> ` notas del orador; el resto, párrafos.
 
 ### Animaciones
@@ -126,11 +138,27 @@ La librería interpola al avanzar, salta al retroceder, dibuja el estado final e
 `K.t("english", "español")`. Ejemplo completo: [`examples/exoplanets/animations.js`](examples/exoplanets/animations.js).
 Se anima solo cuando el contenido **es** un cambio (PRINCIPLES.es.md, «Cuándo animar»).
 
+### Videos de demostración de software
+
+Cuando una charla muestra una interfaz (un panel, un notebook, un chat con un modelo de lenguaje), `demo` graba la
+tarea desde la **aplicación real funcionando**: anotas los pasos en un `demo.yml` (abrir, elegir, hacer clic,
+escribir, esperar), Playwright los ejecuta en tu navegador y el video se compone con esas capturas, con la cámara
+yendo adonde ocurre la acción, un cursor visible, un recuadro en el elemento que se usa y una franja de subtítulos.
+
+```bash
+python engine/kit.py demo examples/software-demo/demo.es.yml
+```
+
+Después, `@video figures/demo_residuals.es.mp4` en una diapositiva: se reproduce al abrirla. Una demostración de
+algo que todavía no existe lleva `mockup: true`, que lo estampa en cada cuadro; las esperas de más de 1,5 s se
+cortan y el subtítulo lo dice. Las reglas, y la evidencia detrás de cada una, están en
+[`docs/software-demos.es.md`](docs/software-demos.es.md).
+
 ### En la presentación HTML
 
 → / espacio / clic: avanzar (primero los pasos) · ←: retroceder · **N** notas · **P** vista del orador (notas,
 siguiente diapositiva, reloj) · **B** pantalla negra · **F** pantalla completa · **E** modo estudio («por qué
-funciona») · **M** animaciones sí/no · **?** ayuda.
+funciona») · **M** animaciones sí/no · **V** pausa o reanuda un video de demostración · **?** ayuda.
 
 Las animaciones se ven aunque el sistema pida reducir movimiento: esa preferencia es del computador de quien presenta,
 no de la sala. Con `motion: respect` en el guion se respeta.
@@ -138,8 +166,9 @@ no de la sala. Con `motion: respect` en el guion se respeta.
 ## Con un agente de IA
 
 La skill de [`skill/presentation-kit/SKILL.md`](skill/presentation-kit/SKILL.md) le dice a un agente cómo trabajar con
-el kit (guion primero, perfil según el contexto, figuras, animaciones solo con las cuatro condiciones, revisión con
-los ojos). Para Claude Code, enlázala en tu carpeta de skills para que se mantenga al día con el repositorio:
+el kit. Parte preguntando qué quieres obtener (el discurso, el contenido, la presentación, una demostración; HTML
+o .pptx) y deja las respuestas en el `brief.md` de la presentación; después, guion primero, perfil según el
+contexto, figuras, animaciones solo con las cuatro condiciones, revisión con los ojos. Para Claude Code, enlázala en tu carpeta de skills para que se mantenga al día con el repositorio:
 
 ```bash
 ln -s "$(pwd)/presentation-kit/skill/presentation-kit" ~/.claude/skills/presentation-kit

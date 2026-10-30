@@ -12,12 +12,13 @@ the example closest to what it will make.
 |---|---|---|
 | [`anscombe/`](anscombe) | Four datasets with the same statistics and different shapes: plot before you summarize. 8 slides. | Sober |
 | [`exoplanets/`](exoplanets) | How planets you cannot see are found: the transit shadow and the stellar wobble. 8 slides, 5 animated scenes. | Expressive |
+| [`software-demo/`](software-demo) | A dashboard shown in a talk: a real app (`app/index.html`) and a demo video recorded from it with `kit.py demo`. 4 slides. | Sober |
 
 Each folder has the packaged single-file HTML, the PDF and the `.pptx`.
 
 ## Resources and where to see them
 
-Principle numbers refer to [`../PRINCIPLES.md`](../PRINCIPLES.md); F and G refer to the entries in [`../docs/`](../docs).
+Principle numbers refer to [`../PRINCIPLES.md`](../PRINCIPLES.md); F, G and S refer to the entries in [`../docs/`](../docs).
 
 | Resource | When | Where | Principle |
 |---|---|---|---|
@@ -33,7 +34,8 @@ Principle numbers refer to [`../PRINCIPLES.md`](../PRINCIPLES.md); F and G refer
 | Accumulate until the signal appears | Averages, 1/√N | `exoplanets`, 4 | F11, F12 |
 | A still slide after an animated run | Marking the change to discussion | `exoplanets`, 5 | "Two registers" |
 | Travel along a log scale | Distances of orders of magnitude | `exoplanets`, 6 | F23, G20 |
-| Show how it was made | When sharing a method | `exoplanets`, 7 | — |
+| Show how it was made | When sharing a method | `exoplanets`, 7; `software-demo`, 3 | — |
+| A demo recorded from the real product | When the talk shows an interface | `software-demo`, 2 | S01, S10 |
 
 ## External references to look at
 
@@ -57,6 +59,7 @@ presentaciones reales como referencia y aprende de ellas. Cada ejemplo trae su g
 |---|---|---|
 | [`anscombe/`](anscombe) | Cuatro conjuntos con la misma estadística y formas distintas: grafica antes de resumir. 8 diapositivas. | Sobrio |
 | [`exoplanets/`](exoplanets) | Cómo se encuentran planetas que no se ven: la sombra del tránsito y el bamboleo de la estrella. 8 diapositivas, 5 escenas animadas. | Expresivo |
+| [`software-demo/`](software-demo) | Un panel mostrado en una charla: una aplicación real (`app/index.html`) y un video grabado desde ella con `kit.py demo`. 4 diapositivas. | Sobrio |
 
 La tabla de recursos de arriba vale igual; los principios en español están en
 [`../PRINCIPLES.es.md`](../PRINCIPLES.es.md) y los catálogos en `../docs/*.es.md`.

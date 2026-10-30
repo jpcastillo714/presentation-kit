@@ -1,0 +1,29 @@
+title: Ajustar una recta esconde lo que muestran los residuos
+url: app/index.html?lang=es
+viewport: [1600, 900]
+output: figures/demo_residuals.es
+label: Grabado desde examples/software-demo/app/index.html
+steps:
+  - caption: El panel abre en el conjunto I
+    hold: 1600
+  - click: "#fit"
+    caption: Ajustar una recta al conjunto I
+    hold: 1200
+  - zoom: "#stats"
+    caption: "r = 0,816"
+    hold: 1800
+  - select: {selector: "#dataset", value: "II"}
+    caption: Cambiar al conjunto II
+    hold: 1000
+  - zoom: "#stats"
+    caption: El mismo r y la misma recta
+    hold: 2000
+  - click: "#residuals"
+    caption: Ver los residuos
+    hold: 600
+  - zoom: "#resid-card"
+    caption: Los residuos forman una curva
+    hold: 2600
+  - view: full
+    caption: Grafica los residuos antes de creerle a r
+    hold: 1800

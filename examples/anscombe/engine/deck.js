@@ -52,6 +52,9 @@
     sl.dataset.level = String(Math.max(0, Math.min(n, maxLevel(sl))));
     sl.classList.add("active");
     apply(sl);
+    // Demo videos: play from the start when their slide opens, pause everywhere else.
+    slides.forEach((s) => s.querySelectorAll("video").forEach((v) => { if (s !== sl) v.pause(); }));
+    if (!printing) sl.querySelectorAll("video.demo-video").forEach((v) => { v.currentTime = 0; v.play().catch(() => {}); });
     if (location.hash !== "#" + (current + 1)) history.replaceState(null, "", "#" + (current + 1));
     refreshNotes();
   }
@@ -78,10 +81,10 @@
   help.innerHTML = tr(
     "<b>Keys</b><br>→ space click: next · ←: back · Home / End<br>" +
     "N: notes below · P: presenter view (new window) · B: black screen · F: full screen<br>" +
-    "E: study mode (shows «why it works» in the example decks) · M: animations on/off · ?: this help",
+    "E: study mode (shows «why it works» in the example decks) · M: animations on/off · V: pause/play video · ?: this help",
     "<b>Teclas</b><br>→ espacio clic: avanzar · ←: retroceder · Inicio / Fin<br>" +
     "N: notas abajo · P: vista del orador (otra ventana) · B: pantalla negra · F: pantalla completa<br>" +
-    "E: modo estudio (muestra «por qué funciona» en los ejemplos) · M: animaciones sí/no · ?: esta ayuda");
+    "E: modo estudio (muestra «por qué funciona» en los ejemplos) · M: animaciones sí/no · V: pausar/seguir video · ?: esta ayuda");
   document.body.appendChild(help);
 
   function notice(txt) {
@@ -148,6 +151,7 @@
     else if (k === "f" || k === "F") { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
     else if (k === "?") help.classList.toggle("open");
     else if (k === "e" || k === "E") document.body.classList.toggle("study");
+    else if (k === "v" || k === "V") slides[current].querySelectorAll("video").forEach((v) => (v.paused ? v.play() : v.pause()));
     else if (k === "m" || k === "M") {
       const b = document.body.dataset;
       b.motion = b.motion === "never" ? "always" : "never";

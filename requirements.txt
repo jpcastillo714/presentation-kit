@@ -3,3 +3,4 @@ numpy>=1.26
 python-pptx>=1.0
 Pillow>=10.0
 PyYAML>=6.0
+playwright>=1.40   # only for `kit.py demo`; also needs ffmpeg

@@ -8,11 +8,15 @@ catalog of templates. You write a plain-text script where every slide title is a
 produces an **HTML deck** (animations, presenter view, offline single file, PDF) and an **editable .pptx**.
 
 It ships with an AI-agent **skill** (Claude Code format, readable by any agent) so you can ask an assistant to build
-decks with it, and with two worked examples you can hand to a model as reference.
+decks with it (it starts by asking what you want to get), and with worked examples you can hand to a model as
+reference.
 
 | Sober register | Expressive register |
 |---|---|
 | [`examples/anscombe`](examples/anscombe): light background, static figures, one idea per slide. Anscombe's quartet (1973). | [`examples/exoplanets`](examples/exoplanets): night-sky profile, full-bleed figures, five animated scenes. How planets you cannot see are found. |
+
+A third example, [`examples/software-demo`](examples/software-demo), shows a dashboard in a talk: the video on its
+slide is recorded from the running app, with zoom and a cursor where the clicks happen.
 
 Each example folder has the deck as a single `.html` file, plus its `.pdf` and `.pptx`. Open the `.html` in a browser
 and use the arrow keys.
@@ -22,10 +26,12 @@ and use the arrow keys.
 ```
 presentation-kit/
 ├─ PRINCIPLES.md            15 principles with their evidence, the rule for when to animate, a review checklist
-├─ docs/                    the sources: 26 well-known charts and 34 talks, with links and verification status
+├─ docs/                    the sources: 26 well-known charts, 34 talks and 20 software demos, with links and
+│                           verification status
 ├─ examples/                worked decks with a "why it works" note on every slide (press E)
 │  ├─ anscombe/             sober register
-│  └─ exoplanets/           expressive register (animated scenes)
+│  ├─ exoplanets/           expressive register (animated scenes)
+│  └─ software-demo/        a talk that shows an interface: a real app and its recorded demo video
 ├─ profiles/                the look: colors, fonts, logo, background, optional .pptx template
 │  ├─ sober/                default: light paper, one accent
 │  └─ night/                dark night sky, amber accent
@@ -33,6 +39,7 @@ presentation-kit/
 │  ├─ kit.py                every command
 │  ├─ deck.css, deck.js     1920×1080 stage, steps, notes, presenter view, print/PDF
 │  ├─ anim.js               animation library: scenes with one state per step
+│  ├─ demo.py               records demo videos from a running web app
 │  └─ figures.py            matplotlib with the profile's style
 └─ skill/presentation-kit/  the agent skill
 ```
@@ -49,7 +56,11 @@ git clone https://github.com/jpcastillo714/presentation-kit.git
 pip install -r presentation-kit/requirements.txt
 ```
 
-Optional: PowerPoint on Windows, only for `render` (exporting the `.pptx` to images to check it).
+Optional:
+
+- PowerPoint on Windows, only for `render` (exporting the `.pptx` to images to check it).
+- For demo videos (`demo`): [ffmpeg](https://ffmpeg.org) on the PATH (or in `KIT_FFMPEG`). Playwright is in
+  `requirements.txt` and uses the browser you already have, so `playwright install` is not needed.
 
 ## Quick start
 
@@ -87,6 +98,7 @@ get `deck.es.html` and `my_talk.es.pptx`.
 | `profile --from ref.pptx --name lab` | Profile from a reference deck: theme and actually-used colors, fonts, logos, background, template |
 | `profile --regenerate <dir>` | Rewrites `profile.css` and `figures.mplstyle` after editing `profile.yml` |
 | `render` | `.pptx` → PNG with PowerPoint (Windows only) |
+| `demo <folder>/demo.yml` | Demo video (MP4 + poster) recorded from the real running app |
 
 Every command and option also has a Spanish alias (`construir`, `revisar`, `--perfil`…).
 
@@ -108,7 +120,7 @@ transition: fade        # optional: the only transition allowed
 ```
 
 Keys: `@type cover|section|figure|two|number|text`, `@figure`, `@source`, `@number`, `@anim`, `@steps N`,
-`@static`, `@subtitle`, `@kicker`, `@class full`, `@appendix`, `@why`. Lines starting with `- ` are bullets, with `> `
+`@static`, `@subtitle`, `@kicker`, `@class full`, `@video`, `@appendix`, `@why`. Lines starting with `- ` are bullets, with `> `
 speaker notes; the rest are paragraphs.
 
 ### Animations
@@ -128,10 +140,38 @@ The library interpolates when moving forward, jumps when going back, draws the f
 language with `K.t("english", "español")`. See [`examples/exoplanets/animations.js`](examples/exoplanets/animations.js).
 Animate only when the content **is** a change (PRINCIPLES.md, "When to animate").
 
+### Demo videos of software
+
+When a talk shows an interface (a dashboard, a notebook, a chat with a language model), `demo` records the task
+from the **real running app**: you list the steps in a `demo.yml` (open, choose, click, type, wait), Playwright
+performs them in your browser, and the video is composed from those screenshots, with the camera moving to where
+the action is, a visible cursor, a box on the element in use and a caption band.
+
+```yaml
+title: Fitting a line hides what the residuals show
+url: app/index.html          # or http://localhost:8000/ (with start: to launch it)
+output: figures/demo_residuals
+steps:
+  - click: "#fit"
+    caption: Fit a line to dataset I
+  - zoom: "#stats"
+    caption: "r = 0.816"
+  - view: full
+```
+
+```bash
+python engine/kit.py demo examples/software-demo/demo.yml
+```
+
+Then `@video figures/demo_residuals.mp4` on a slide: it plays when the slide opens. A demo of something not built
+yet carries `mockup: true`, which stamps it on every frame; waits longer than 1.5 s are cut and the caption says
+so. The rules, and the evidence behind each, are in [`docs/software-demos.md`](docs/software-demos.md).
+
 ### In the HTML deck
 
 → / space / click: next (steps first) · ←: back · **N** notes · **P** presenter view (notes, next slide, clock) ·
-**B** black screen · **F** full screen · **E** study mode ("why it works") · **M** animations on/off · **?** help.
+**B** black screen · **F** full screen · **E** study mode ("why it works") · **M** animations on/off ·
+**V** play/pause a demo video · **?** help.
 
 Animations play even if the operating system asks to reduce motion: that preference belongs to the presenter's
 computer, not to the room. Add `motion: respect` to the script to honor it.
@@ -139,7 +179,9 @@ computer, not to the room. Add `motion: respect` to the script to honor it.
 ## Using it with an AI agent
 
 The skill in [`skill/presentation-kit/SKILL.md`](skill/presentation-kit/SKILL.md) tells an agent how to work with
-the kit (script first, profile from context, figures, animations only under the four conditions, review by eye). For
+the kit. It starts by asking what you want to get (the talk itself, the content, the deck, a demo; HTML or .pptx)
+and writes the answers to the deck's `brief.md`; then script first, profile from context, figures, animations only
+under the four conditions, review by eye. For
 Claude Code, link it into your skills folder so it stays in sync with the repository:
 
 ```bash

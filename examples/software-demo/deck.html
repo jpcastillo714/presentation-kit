@@ -1,0 +1,47 @@
+<!doctype html>
+<!-- Generated from the script by engine/kit.py. Do not edit by hand: edit the script and rebuild.
+     Design tweaks go in styles.css; animations in animations.js (linked automatically if present). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Two clicks show what a correlation hides</title>
+<link rel="stylesheet" href="engine/deck.css">
+<link rel="stylesheet" href="profile/profile.css">
+</head>
+<body data-motion="always">
+<div class="stage">
+
+<section class="slide cover">
+  <h1>Two clicks show what a correlation hides</h1>
+  <p class="subtitle">A demo recorded from the real dashboard, not drawn</p>
+  <p class="byline">presentation-kit · software demo example · 2026</p>
+  <aside class="notes">One task, shown in the product itself: fit a line to two datasets and look at the residuals.</aside>
+  <aside class="why">The title is the conclusion of the demo, not the name of the product (principle 4). The subtitle states the evidence: the video comes from running code (S-entries, "show the real product").</aside>
+</section>
+<section class="slide figure">
+  <h1>The dashboard gives the same r for two very different datasets; the residuals tell them apart</h1>
+  <div class="content"><figure><video class="demo-video screen-only" src="figures/demo_residuals.mp4" poster="figures/demo_residuals.png" muted playsinline preload="auto"></video><img class="print-only" src="figures/demo_residuals.png" alt=""></figure></div>
+  <p class="source">Recorded with «kit.py demo» from app/index.html (demo.yml). Data: Anscombe (1973), The American Statistician 27(1), 17–21.</p>
+  <aside class="notes">Let the video run; it zooms where each click happens. Press V to pause on the residuals.</aside>
+  <aside class="why">One task per clip, scripted before recording, with the camera on the control in use and a visible cursor (signaling, F25; the software-demo catalog). The label in the video says where it was recorded from.</aside>
+</section>
+<section class="slide text">
+  <h1>The video comes from running the code, step by step</h1>
+  <div class="content column top"><ul><li data-step="1"><b class="accent">demo.yml lists the task:</b> open, choose a dataset, click, zoom, wait.</li><li data-step="2"><b class="accent">kit.py demo performs it in a real browser</b> and takes a screenshot at every step.</li><li data-step="3"><b class="accent">Zoom, cursor and captions are added afterwards,</b> from the positions of the real elements.</li><li data-step="4"><b class="accent">If there is no code yet,</b> <code>mockup: true</code> stamps «Mock-up» on every frame.</li></ul></div>
+  <p class="source">presentation-kit: engine/demo.py.</p>
+  <aside class="notes">This is the slide for whoever will record their own demo.</aside>
+  <aside class="why">Says how the evidence was produced (principle 8) and separates a real demo from a mock-up, which a viewer cannot tell apart on screen.</aside>
+</section>
+<section class="slide text appendix">
+  <div class="appendix-label">Appendix</div>
+  <h1>Sources</h1>
+  <div class="content column top"><ul><li>Anscombe, F. J. (1973). Graphs in Statistical Analysis. The American Statistician 27(1), 17–21. DOI 10.1080/00031305.1973.10478966.</li><li>How to show software: docs/software-demos.md (catalog of recognized demos and of the evidence on screencasts).</li><li>The app: app/index.html (plain HTML and JavaScript). The recording: demo.yml and engine/demo.py.</li></ul></div>
+  <aside class="why">The appendix says where each piece lives so anyone can re-record the demo.</aside>
+</section>
+
+</div>
+<script>window.animations = window.animations || {};</script>
+<script src="engine/deck.js"></script>
+</body>
+</html>

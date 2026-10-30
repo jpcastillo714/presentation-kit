@@ -1,0 +1,127 @@
+<!doctype html>
+<!-- Anscombe explorer: a tiny, real dashboard used by the software-demo example. Plain HTML + JS, no dependencies.
+     Data: Anscombe (1973), The American Statistician 27(1), 17–21. Add ?lang=es for Spanish labels. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anscombe explorer</title>
+<style>
+  :root { --bg: #f4f5f7; --card: #ffffff; --ink: #1c2127; --soft: #5b6570; --accent: #1f5f8b; --warn: #b4532a; --line: #dfe3e8; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.4 "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 28px; background: #1c2127; color: #fff; }
+  header h1 { font-size: 20px; margin: 0; font-weight: 600; }
+  header span { color: #aab3bd; font-size: 14px; }
+  main { display: grid; grid-template-columns: 300px 1fr; gap: 20px; padding: 20px 28px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px; }
+  label { display: block; font-size: 13px; color: var(--soft); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+  select, button { font: inherit; width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
+  button { cursor: pointer; margin-top: 12px; background: var(--accent); color: #fff; border: none; font-weight: 600; }
+  button.secondary { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+  table { width: 100%; border-collapse: collapse; margin-top: 18px; font-variant-numeric: tabular-nums; }
+  td { padding: 6px 0; border-bottom: 1px solid var(--line); }
+  td:last-child { text-align: right; font-weight: 600; }
+  #r-value { color: var(--accent); }
+  .charts { display: grid; grid-template-rows: 1fr auto; gap: 20px; }
+  svg { width: 100%; height: auto; display: block; }
+  #chart { max-height: 430px; }
+  #resid { max-height: 170px; }
+  #resid-card { display: none; }
+  #resid-card.on { display: block; }
+  .hint { font-size: 14px; color: var(--soft); margin: 4px 0 0; }
+  .hint.warn { color: var(--warn); font-weight: 600; }
+</style>
+</head>
+<body>
+<header><h1 id="t-title">Anscombe explorer</h1><span id="t-sub">Same statistics, different data</span></header>
+<main>
+  <section class="card" id="controls">
+    <label for="dataset" id="t-dataset">Dataset</label>
+    <select id="dataset">
+      <option value="I">I</option><option value="II">II</option><option value="III">III</option><option value="IV">IV</option>
+    </select>
+    <button id="fit"><span id="t-fit">Fit a line</span></button>
+    <button id="residuals" class="secondary"><span id="t-resid">Show residuals</span></button>
+    <table id="stats">
+      <tr><td id="t-n">Points</td><td id="s-n">11</td></tr>
+      <tr><td id="t-mx">Mean of x</td><td id="s-mx">–</td></tr>
+      <tr><td id="t-my">Mean of y</td><td id="s-my">–</td></tr>
+      <tr><td>r</td><td id="r-value">–</td></tr>
+      <tr><td id="t-line">Line</td><td id="s-line">–</td></tr>
+    </table>
+  </section>
+  <section class="charts">
+    <div class="card"><svg id="chart" viewBox="0 0 800 420" preserveAspectRatio="xMinYMid meet"></svg></div>
+    <div class="card" id="resid-card">
+      <svg id="resid" viewBox="0 0 800 200" preserveAspectRatio="xMinYMid meet"></svg>
+      <p class="hint" id="resid-hint"></p>
+    </div>
+  </section>
+</main>
+<script>
+const ES = new URLSearchParams(location.search).get("lang") === "es";
+const T = ES ? { "t-title": "Explorador de Anscombe", "t-sub": "La misma estadística, datos distintos", "t-dataset": "Conjunto",
+  "t-fit": "Ajustar una recta", "t-resid": "Ver residuos", "t-n": "Puntos", "t-mx": "Media de x", "t-my": "Media de y", "t-line": "Recta" } : {};
+for (const k in T) document.getElementById(k).textContent = T[k];
+if (ES) document.documentElement.lang = "es";
+const fmt = (v, d = 2) => (ES ? v.toFixed(d).replace(".", ",") : v.toFixed(d));
+
+const X123 = [10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5];
+const DATA = {
+  I: [X123, [8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68]],
+  II: [X123, [9.14, 8.14, 8.74, 8.77, 9.26, 8.10, 6.13, 3.10, 9.13, 7.26, 4.74]],
+  III: [X123, [7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, 5.73]],
+  IV: [[8, 8, 8, 8, 8, 8, 8, 19, 8, 8, 8], [6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.50, 5.56, 7.91, 6.89]],
+};
+const mean = (a) => a.reduce((s, v) => s + v, 0) / a.length;
+function fit(x, y) {
+  const mx = mean(x), my = mean(y);
+  let sxy = 0, sxx = 0, syy = 0;
+  x.forEach((xi, i) => { sxy += (xi - mx) * (y[i] - my); sxx += (xi - mx) ** 2; syy += (y[i] - my) ** 2; });
+  const b = sxy / sxx; return { mx, my, b, a: my - b * mx, r: sxy / Math.sqrt(sxx * syy) };
+}
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+const state = { set: "I", fitted: false, resid: false };
+
+function draw() {
+  const [x, y] = DATA[state.set], f = fit(x, y);
+  const chart = document.getElementById("chart"); chart.innerHTML = "";
+  const X = (v) => 60 + (v - 2) / 18 * 710, Y = (v) => 390 - (v - 2) / 12 * 360;
+  el("line", { x1: 60, x2: 770, y1: 390, y2: 390, stroke: "#c9ced4" }, chart);
+  el("line", { x1: 60, x2: 60, y1: 30, y2: 390, stroke: "#c9ced4" }, chart);
+  for (const v of [5, 10, 15, 20]) el("text", { x: X(v), y: 412, "text-anchor": "middle", "font-size": 14, fill: "#5b6570" }, chart).textContent = v;
+  for (const v of [4, 8, 12]) el("text", { x: 48, y: Y(v) + 5, "text-anchor": "end", "font-size": 14, fill: "#5b6570" }, chart).textContent = v;
+  if (state.fitted) el("line", { x1: X(2), y1: Y(f.a + f.b * 2), x2: X(20), y2: Y(f.a + f.b * 20), stroke: "#1f5f8b", "stroke-width": 3 }, chart);
+  x.forEach((xi, i) => el("circle", { cx: X(xi), cy: Y(y[i]), r: 7, fill: "#1f5f8b" }, chart));
+  document.getElementById("s-mx").textContent = fmt(f.mx);
+  document.getElementById("s-my").textContent = fmt(f.my);
+  document.getElementById("r-value").textContent = state.fitted ? fmt(f.r, 3) : "–";
+  document.getElementById("s-line").textContent = state.fitted ? `y = ${fmt(f.a)} + ${fmt(f.b, 3)}x` : "–";
+  const card = document.getElementById("resid-card"), rs = document.getElementById("resid");
+  card.classList.toggle("on", state.resid); rs.innerHTML = "";
+  if (state.resid) {
+    const res = x.map((xi, i) => y[i] - (f.a + f.b * xi)), RY = (v) => 100 - v * 30;
+    el("line", { x1: 60, x2: 770, y1: 100, y2: 100, stroke: "#c9ced4" }, rs);
+    x.forEach((xi, i) => el("circle", { cx: X(xi), cy: RY(res[i]), r: 6, fill: Math.abs(res[i]) > 2 ? "#b4532a" : "#1f5f8b" }, rs));
+    const hint = document.getElementById("resid-hint");
+    const big = res.some((v) => Math.abs(v) > 2);
+    const msg = {
+      II: ES ? "Los residuos forman una curva: la recta es el modelo equivocado." : "The residuals form a curve: a line is the wrong model.",
+      IV: ES ? "Diez de los once puntos comparten x = 8: un solo punto decide la recta." : "Ten of the eleven points share x = 8: a single point decides the line.",
+      big: ES ? "Un punto se aleja mucho de la recta: revísalo antes de reportar r." : "One point sits far from the line: check it before reporting r.",
+      ok: ES ? "Residuos sin patrón: la recta describe bien los datos." : "No pattern in the residuals: the line describes the data well.",
+    };
+    const key = state.set === "II" || state.set === "IV" ? state.set : big ? "big" : "ok";
+    hint.className = "hint" + (key === "ok" ? "" : " warn");
+    hint.textContent = msg[key];
+  }
+}
+document.getElementById("dataset").addEventListener("change", (e) => { state.set = e.target.value; draw(); });
+document.getElementById("fit").addEventListener("click", () => { state.fitted = true; draw(); });
+document.getElementById("residuals").addEventListener("click", () => { state.fitted = true; state.resid = !state.resid; draw(); });
+draw();
+</script>
+</body>
+</html>

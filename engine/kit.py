@@ -24,6 +24,9 @@ Commands (Spanish aliases in parentheses):
       One PNG per slide (final state), to review by eye.
   python engine/kit.py statics (estaticos) <folder> [--script script.es.md]
       Final frame of each animation (figures/static_<name>.png), used by the .pptx.
+  python engine/kit.py demo <demo.yml>
+      Records a demo video (MP4 + poster) of a web interface from the REAL running app: zoom where the action is,
+      visible cursor, captions. Use it in a slide with «@video figures/<name>.mp4».
   python engine/kit.py render (renderizar) <file.pptx> <png_dir>
       .pptx -> PNG with PowerPoint (Windows only), to review it by eye.
 
@@ -357,7 +360,7 @@ def read_script(path: Path) -> tuple[dict, list[dict]]:
         if line.startswith("## "):
             sl = {"title": line[3:].strip(), "type": None, "figures": [], "bullets": [], "paragraphs": [],
                   "notes": [], "source": None, "anim": None, "static": None, "number": None, "appendix": False,
-                  "steps": False, "subtitle": None, "why": None, "class": None, "kicker": None}
+                  "steps": False, "subtitle": None, "why": None, "class": None, "kicker": None, "video": None}
             slides.append(sl)
             continue
         if sl is None or not line.strip() or line.startswith("<!--"):
@@ -388,7 +391,7 @@ def read_script(path: Path) -> tuple[dict, list[dict]]:
     for sl in slides:
         if not sl["type"]:
             sl["type"] = ("number" if sl["number"] else "two" if len(sl["figures"]) > 1
-                          else "figure" if sl["figures"] or sl["anim"] else "text")
+                          else "figure" if sl["figures"] or sl["anim"] or sl["video"] else "text")
     return meta, slides
 
 
@@ -453,6 +456,12 @@ def html_from_script(meta: dict, slides: list[dict], logo: str | None, folder: P
                 static = (f'<img class="print-only" src="{html.escape(sl["static"])}" alt="">' if sl["static"] else "")
                 figs = [f'<figure><div class="scene{" screen-only" if static else ""}" id="scene-{i}"><!-- animation '
                         f'«{sl["anim"]}»: draw it in animations.js --></div>{static}</figure>']
+            if sl["video"]:
+                # Demo video (kit.py demo): plays when the slide opens; the PDF shows its poster image.
+                v = html.escape(sl["video"])
+                poster = html.escape(Path(sl["video"]).with_suffix(".png").as_posix())
+                figs = [f'<figure><video class="demo-video screen-only" src="{v}" poster="{poster}" muted playsinline '
+                        f'preload="auto"></video><img class="print-only" src="{poster}" alt=""></figure>']
             if t == "number":
                 block = [f'<div class="side"><div class="big-number">{_md(sl["number"])}</div></div>',
                          f'<div>{"".join(text)}</div>']
@@ -599,32 +608,70 @@ def pptx_from_script(meta: dict, slides: list[dict], profile: dict, folder: Path
             tree = sl.shapes._spTree
             tree.remove(pic._element)
             tree.insert(2, pic._element)
+        # A full-bleed animated slide («@class full»): its final frame (statics, without title or source) becomes the
+        # slide background and the text goes on top as editable text, like in the HTML. Placing that frame inside the
+        # body, under the title, looked like a photo pasted on the slide.
+        full_static = None
+        if d["anim"] and "full" in (d["class"] or "").split():
+            cand = folder / (d["static"] or f"figures/static_{d['anim']}{suffix}.png")
+            if cand.exists():
+                full_static = cand
+                pic = sl.shapes.add_picture(str(cand), 0, 0, W, H)
+                tree = sl.shapes._spTree
+                tree.remove(pic._element)
+                tree.insert(2 + (1 if profile.get("background_image") else 0), pic._element)
         for ph in list(sl.placeholders):
             if ph is not title_ph:
                 ph._element.getparent().remove(ph._element)
         text = [(p, False) for p in d["paragraphs"]] + [(v, True) for v in d["bullets"]]
         kind = d["type"]
         if kind == "cover":
-            box(sl, M, H * 0.30, W - 2 * M, 300 * px, [(d["title"], False)], 42, c["ink"], font_title, True)
+            # With a full-bleed animated cover the text sits in the upper half, clear of the figure (as in the HTML).
+            if full_static:
+                lines = max(1, -(-len(d["title"]) // 36))  # about 36 characters per line at 42 pt
+                y_t = H * 0.12
+                y_s = y_t + (90 + 100 * lines) * px
+                y_b = y_s + 120 * px
+            else:
+                y_t, y_s, y_b = H * 0.30, H * 0.30 + 330 * px, H * 0.78
+            box(sl, M, y_t, W - 2 * M, 300 * px, [(d["title"], False)], 42, c["ink"], font_title, True)
             if d["subtitle"]:
-                box(sl, M, H * 0.30 + 330 * px, W - 2 * M, 120 * px, [(d["subtitle"], False)], 20, c["ink_soft"], font_text)
+                box(sl, M, y_s, W - 2 * M, 120 * px, [(d["subtitle"], False)], 20,
+                    c["accent"] if full_static else c["ink_soft"], font_text)
             byline = " · ".join(str(x) for x in (meta.get("author"), meta.get("place"), meta.get("date")) if x)
-            box(sl, M, H * 0.78, W - 2 * M, 60 * px, [(byline, False)], 14, c["ink_soft"], font_text)
+            box(sl, M, y_b, W - 2 * M, 60 * px, [(byline, False)], 14, c["ink_soft"], font_text)
         elif kind == "section":
             if d["subtitle"]:
                 box(sl, M, H * 0.36, W - 2 * M, 50 * px, [(d["subtitle"], False)], 14, c["accent"], font_text)
             box(sl, M, H * 0.42, W - 2 * M, 200 * px, [(d["title"], False)], 38, c["ink"], font_title, True)
         else:
             title_h = 150 * px
+            top = TOP
+            if d["kicker"]:                     # small line above the title, as in the HTML
+                box(sl, M, TOP - 20 * px, W - 2 * M, 40 * px, [(_plain(d["kicker"]).upper(), False)], 11, c["accent"], font_text)
+                top = TOP + 30 * px
             if title_ph is not None:
                 title_ph.text = _plain(d["title"])
             else:
-                box(sl, M, TOP, W - 2 * M, title_h, [(d["title"], False)], 30, c["ink"], font_title, True)
+                box(sl, M, top, W - 2 * M, title_h, [(d["title"], False)], 30, c["ink"], font_title, True)
             y0 = TOP + title_h + 30 * px
             y1 = H - (110 if d["source"] else 70) * px
             width, height = W - 2 * M, y1 - y0
             figs = list(d["figures"])
-            if d["anim"]:
+            if d["video"]:
+                movie = folder / d["video"]
+                poster = movie.with_suffix(".png")
+                if movie.exists():
+                    k = min(width / 1920, height / 1080)
+                    vw_, vh_ = int(1920 * k), int(1080 * k)
+                    sl.shapes.add_movie(str(movie), int(M + (width - vw_) / 2), int(y0 + (height - vh_) / 2), vw_, vh_,
+                                        poster_frame_image=str(poster) if poster.exists() else None, mime_type="video/mp4")
+                    figs = []
+                else:
+                    text = text + [(f"[missing video {d['video']}: run «kit.py demo»]", False)]
+            if d["anim"] and full_static:
+                figs = []                       # the frame is already the slide background
+            elif d["anim"]:
                 auto = f"figures/static_{d['anim']}{suffix}.png"
                 figs = [d["static"]] if d["static"] else ([auto] if (folder / auto).exists() else [])
                 if not figs:
@@ -683,6 +730,7 @@ message: the sentence they should remember in a week
      @anim name  @static path (final image of the animation, for PDF and .pptx)  @subtitle text
      @steps (reveals paragraphs and bullets one by one; «@steps 3» = levels of an animation)  @appendix
      @why (design note, key E)  @class full (full-bleed figure)  @kicker text (small line above the title)
+     @video figures/demo.mp4 (demo video recorded with «kit.py demo»: plays when the slide opens)
      Front matter: «transition: fade» for a short fade; «motion: respect» to honor the OS reduce-motion setting.
      Lines with «- » are bullets; with «> » speaker notes; the rest are paragraphs. -->
 
@@ -722,6 +770,61 @@ message: la frase que deben recordar en una semana
 """}
 
 
+BRIEF = {"en": """# Brief: {title}
+
+Answers to the intake questions (skill presentation-kit, "Start here"). Fill this in before writing the script.
+
+## What the user wants to get (in this order)
+- [ ] The talk itself first: what to say, slide by slide (speaker script)
+- [ ] The content only: titles and evidence per slide (script.md), to review
+- [ ] The finished deck
+- [ ] A demo of software (see below)
+
+## Format
+- [ ] HTML (recommended: looks better, the only one with animations and demo videos)
+- [ ] .pptx (someone else must edit it; animated slides become still images)
+
+## Audience and message
+- Audience, and what they already know:
+- The one sentence they should remember in a week:
+- Duration:
+- Language:
+- Style reference (deck, template, none):
+- Register (sober / expressive):
+
+## Demo of software (if any)
+- What exactly to demonstrate (task, order, inputs):
+- Real product or mock-up? (recorded from running code with «kit.py demo», or a labeled mock-up):
+- How to start it (URL, command), data or test credentials:
+""", "es": """# Brief: {title}
+
+Respuestas a las preguntas iniciales (skill presentation-kit, «Start here»). Se completa antes de escribir el guion.
+
+## Qué quiere obtener (en este orden)
+- [ ] Primero la charla: qué decir, diapositiva por diapositiva (guion del orador)
+- [ ] Solo el contenido: títulos y evidencia por diapositiva (script.es.md), para revisar
+- [ ] La presentación terminada
+- [ ] Una demostración de software (ver abajo)
+
+## Formato
+- [ ] HTML (recomendado: se ve mejor y es el único con animaciones y videos de demostración)
+- [ ] .pptx (otra persona tiene que editarla; las diapositivas animadas quedan como imágenes fijas)
+
+## Audiencia y mensaje
+- Audiencia, y qué sabe ya:
+- La frase que debe recordar en una semana:
+- Duración:
+- Idioma:
+- Referencia de estilo (presentación, plantilla, ninguna):
+- Registro (sobrio / expresivo):
+
+## Demostración de software (si hay)
+- Qué demostrar exactamente (tarea, orden, entradas):
+- ¿Producto real o maqueta? (grabado desde el código que corre con «kit.py demo», o maqueta rotulada):
+- Cómo se inicia (URL, comando), datos o credenciales de prueba:
+"""}
+
+
 def opt(args: list[str], name: str, default=None):
     return args[args.index(name) + 1] if name in args else default
 
@@ -748,6 +851,9 @@ def cmd_new(args: list[str]) -> None:
     shutil.copytree(src, folder / "profile", dirs_exist_ok=True)
     script.write_text(STARTER["es" if lang == "es" else "en"].format(
         title=title, profile=src.name, date=datetime.date.today().isoformat()), encoding="utf-8")
+    brief = folder / ("brief.md" if lang == "en" else f"brief.{lang}.md")
+    if not brief.exists():
+        brief.write_text(BRIEF["es" if lang == "es" else "en"].format(title=title), encoding="utf-8")
     print(f"[OK] new deck in {folder} with profile «{src.name}». Next: write {script.name} and run «kit.py build».")
 
 
@@ -822,7 +928,7 @@ def cmd_package(args: list[str]) -> None:
 
     text = re.sub(r'<link[^>]+rel="stylesheet"[^>]+href="([^"]+)"[^>]*>', css_inline, text)
     text = re.sub(r'<script src="([^"]+)"></script>', js_inline, text)
-    text = re.sub(r'\b(src|data-logo|href)="([^"]+\.(?:png|jpe?g|svg|gif|webp|mp4|webm))"', attribute, text)
+    text = re.sub(r'\b(src|data-logo|href|poster)="([^"]+\.(?:png|jpe?g|svg|gif|webp|mp4|webm))"', attribute, text)
     out.write_text(text, encoding="utf-8")
     print(f"[OK] {out}  ({out.stat().st_size / 1e6:.1f} MB, single file)")
     for f in missing:
@@ -976,6 +1082,15 @@ def cmd_statics(args: list[str]) -> None:
     print(f"[OK] {done} statics in {folder / 'figures'}. Run «build --pptx» again to use them.")
 
 
+def cmd_demo(args: list[str]) -> None:
+    """Records a demo video from the real running interface (engine/demo.py)."""
+    if not args:
+        sys.exit("Usage: kit.py demo <demo.yml>   (see engine/demo.py for the format)")
+    sys.path.insert(0, str(ENGINE))
+    import demo
+    demo.main(args)
+
+
 def cmd_render(args: list[str]) -> None:
     if len(args) < 2:
         sys.exit("Usage: kit.py render <file.pptx> <png_dir>")
@@ -993,7 +1108,7 @@ $pres.Close(); $pp.Quit()
 
 
 COMMANDS = {"new": cmd_new, "build": cmd_build, "package": cmd_package, "pdf": cmd_pdf, "review": cmd_review,
-            "profile": cmd_profile, "render": cmd_render, "shots": cmd_shots, "statics": cmd_statics}
+            "profile": cmd_profile, "render": cmd_render, "shots": cmd_shots, "statics": cmd_statics, "demo": cmd_demo}
 ALIASES_ES = {"nueva": "new", "construir": "build", "empaquetar": "package", "revisar": "review", "perfil": "profile",
               "renderizar": "render", "capturas": "shots", "estaticos": "statics"}
 OPTIONS_ES = {"--perfil": "--profile", "--titulo": "--title", "--sobrescribir": "--overwrite", "--solo": "--only",

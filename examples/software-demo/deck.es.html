@@ -1,0 +1,47 @@
+<!doctype html>
+<!-- Generated from the script by engine/kit.py. Do not edit by hand: edit the script and rebuild.
+     Design tweaks go in styles.css; animations in animations.js (linked automatically if present). -->
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dos clics muestran lo que una correlación esconde</title>
+<link rel="stylesheet" href="engine/deck.css">
+<link rel="stylesheet" href="profile/profile.css">
+</head>
+<body data-motion="always">
+<div class="stage">
+
+<section class="slide cover">
+  <h1>Dos clics muestran lo que una correlación esconde</h1>
+  <p class="subtitle">Una demostración grabada desde el panel real, no dibujada</p>
+  <p class="byline">presentation-kit · ejemplo de demostración de software · 2026</p>
+  <aside class="notes">Una sola tarea, mostrada en el producto: ajustar una recta a dos conjuntos y mirar los residuos.</aside>
+  <aside class="why">El título es la conclusión de la demostración, no el nombre del producto (principio 4). El subtítulo dice cuál es la evidencia: el video sale del código funcionando (catálogo de demostraciones, «mostrar el producto real»).</aside>
+</section>
+<section class="slide figure">
+  <h1>El panel da el mismo r para dos conjuntos muy distintos; los residuos los separan</h1>
+  <div class="content"><figure><video class="demo-video screen-only" src="figures/demo_residuals.es.mp4" poster="figures/demo_residuals.es.png" muted playsinline preload="auto"></video><img class="print-only" src="figures/demo_residuals.es.png" alt=""></figure></div>
+  <p class="source">Grabado con «kit.py demo» desde app/index.html (demo.es.yml). Datos: Anscombe (1973), The American Statistician 27(1), 17–21.</p>
+  <aside class="notes">Dejar correr el video; se acerca donde ocurre cada clic. Con V se pausa en los residuos.</aside>
+  <aside class="why">Una tarea por video, escrita antes de grabar, con la cámara sobre el control que se usa y un cursor visible (señalización, F25; catálogo de demostraciones). La etiqueta del video dice desde dónde se grabó.</aside>
+</section>
+<section class="slide text">
+  <h1>El video sale de ejecutar el código, paso a paso</h1>
+  <div class="content column top"><ul><li data-step="1"><b class="accent">demo.es.yml enumera la tarea:</b> abrir, elegir un conjunto, hacer clic, acercar, esperar.</li><li data-step="2"><b class="accent">kit.py demo la ejecuta en un navegador real</b> y toma una captura en cada paso.</li><li data-step="3"><b class="accent">El acercamiento, el cursor y los subtítulos se agregan después,</b> a partir de la posición de los elementos reales.</li><li data-step="4"><b class="accent">Si todavía no hay código,</b> <code>mockup: true</code> estampa «Maqueta» en cada cuadro.</li></ul></div>
+  <p class="source">presentation-kit: engine/demo.py.</p>
+  <aside class="notes">Esta es la diapositiva para quien vaya a grabar su propia demostración.</aside>
+  <aside class="why">Dice cómo se produjo la evidencia (principio 8) y separa una demostración real de una maqueta, que en pantalla no se distinguen.</aside>
+</section>
+<section class="slide text appendix">
+  <div class="appendix-label">Anexo</div>
+  <h1>Fuentes</h1>
+  <div class="content column top"><ul><li>Anscombe, F. J. (1973). Graphs in Statistical Analysis. The American Statistician 27(1), 17–21. DOI 10.1080/00031305.1973.10478966.</li><li>Cómo mostrar software: docs/software-demos.es.md (catálogo de demostraciones reconocidas y de la evidencia sobre videos de software).</li><li>La aplicación: app/index.html (HTML y JavaScript). La grabación: demo.es.yml y engine/demo.py.</li></ul></div>
+  <aside class="why">El anexo dice dónde está cada pieza para que cualquiera pueda volver a grabar la demostración.</aside>
+</section>
+
+</div>
+<script>window.animations = window.animations || {};</script>
+<script src="engine/deck.js"></script>
+</body>
+</html>
