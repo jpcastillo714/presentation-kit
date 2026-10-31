@@ -13,6 +13,7 @@ the example closest to what it will make.
 | [`anscombe/`](anscombe) | Four datasets with the same statistics and different shapes: plot before you summarize. 8 slides. | Sober |
 | [`exoplanets/`](exoplanets) | How planets you cannot see are found: the transit shadow and the stellar wobble. 8 slides, 5 animated scenes. | Expressive |
 | [`software-demo/`](software-demo) | A dashboard shown in a talk: a real app (`app/index.html`) and a demo video recorded from it with `kit.py demo`. 4 slides. | Sober |
+| [`study-guide/`](study-guide) | An interactive study guide (not a talk): why averaging N measurements divides the error by √N, and the offset it cannot remove. 2 pages, 2 simulators, built with `kit.py guide`. | Reading page |
 
 Each folder has the packaged single-file HTML, the PDF and the `.pptx`.
 
@@ -60,6 +61,7 @@ presentaciones reales como referencia y aprende de ellas. Cada ejemplo trae su g
 | [`anscombe/`](anscombe) | Cuatro conjuntos con la misma estadística y formas distintas: grafica antes de resumir. 8 diapositivas. | Sobrio |
 | [`exoplanets/`](exoplanets) | Cómo se encuentran planetas que no se ven: la sombra del tránsito y el bamboleo de la estrella. 8 diapositivas, 5 escenas animadas. | Expresivo |
 | [`software-demo/`](software-demo) | Un panel mostrado en una charla: una aplicación real (`app/index.html`) y un video grabado desde ella con `kit.py demo`. 4 diapositivas. | Sobrio |
+| [`study-guide/`](study-guide) | Una guía de estudio interactiva (no una charla): por qué promediar N mediciones divide el error por √N, y el desplazamiento que no puede quitar. 2 páginas, 2 simuladores, armada con `kit.py guide`. | Página de lectura |
 
 La tabla de recursos de arriba vale igual; los principios en español están en
 [`../PRINCIPLES.es.md`](../PRINCIPLES.es.md) y los catálogos en `../docs/*.es.md`.

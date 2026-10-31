@@ -1,0 +1,58 @@
+<!--META {"title": "Averaging cannot remove an offset", "what": "Where the 1/√N rule stops: the systematic floor"} META-->
+<p class="kicker">Part 2 · The limit</p>
+<h1>A constant offset survives any amount of averaging</h1>
+<p class="answer">If every reading is shifted by the same amount b (a ruler that starts at 0.3 mm, a clock that runs
+fast), the average converges to the truth plus b. The total error falls as σ/√N until it meets |b|, and stays there.</p>
+
+<div class="predict" data-correct="c">
+  <p class="q">Your ruler reads 0.3 mm too long, and σ = 1 mm. After averaging 10 000 readings, the error of the average is about…</p>
+  <div class="options">
+    <button data-option="a">0.01 mm</button>
+    <button data-option="b">0.003 mm</button>
+    <button data-option="c">0.3 mm</button>
+  </div>
+  <p class="why">0.3 mm. The random part fell to σ/√10 000 = 0.01 mm, but the offset is in every reading, so it is in
+  the average too. More data cannot reveal it; only a comparison with something known can (a calibration).</p>
+</div>
+
+<div class="sim wide" data-gate>
+  <div class="controls">
+    <label>Offset b (mm) <input type="range" id="b2" min="0" max="0.5" step="0.01" value="0.3" data-digits="2"><output for="b2"></output></label>
+    <span>N where the floor starts ≈ (σ/b)² = <span class="readout" id="nf2"></span></span>
+  </div>
+  <svg id="p2" role="img" aria-label="Error of the average against N on log-log axes"></svg>
+  <figcaption>Dots: typical error of the average in 400 simulated experiments per N (root mean square), σ = 1 mm.
+  Dashed: σ/√N alone. Vertical line: where the random part equals the offset.</figcaption>
+</div>
+<script>
+(function () {
+  const Ns = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192];
+  G.bind("b2", b => {
+    const r = G.rng(5), reps = 400;
+    const rms = Ns.map(n => {
+      let s2 = 0;
+      for (let k = 0; k < reps; k++) { let s = 0; for (let i = 0; i < n; i++) s += r.normal(); s2 += (s / n + b) ** 2; }
+      return Math.sqrt(s2 / reps);
+    });
+    const floor = b > 0 ? 1 / (b * b) : null;
+    document.getElementById("nf2").textContent = floor ? Math.round(floor).toLocaleString("en") : "∞";
+    G.plot(document.getElementById("p2"), {
+      xlabel: "readings averaged, N", ylabel: "error of the average (mm)", xlog: true, ylog: true,
+      xlim: [1, 10000], ylim: [0.005, 2],
+      series: [{ x: Ns, y: Ns.map(n => 1 / Math.sqrt(n)), color: "var(--soft)", dash: "5 5", width: 1.6, label: "σ/√N" },
+               { x: Ns, y: rms, dots: true, r: 4 }],
+      marks: floor && floor <= 10000 ? [{ x: floor, label: "floor" }] : [],
+    });
+  });
+})();
+</script>
+
+<h2>What to do with a floor</h2>
+<ul>
+  <li><b>Find it before you collect more data:</b> past the floor, extra hours of measurement buy nothing.</li>
+  <li><b>Measure the offset against a reference</b> (a calibration standard, a blank, a known source), then subtract it.</li>
+  <li><b>Report both parts:</b> the random error, which shrinks with N, and the systematic one, which does not.</li>
+</ul>
+
+<details class="check"><summary>Check yourself: you averaged 1 million readings and quote an error of σ/1000. What is missing?</summary>
+<p>The systematic error. σ/√N only describes the random part; an offset of any size would leave that number unchanged.</p></details>

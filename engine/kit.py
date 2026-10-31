@@ -27,6 +27,9 @@ Commands (Spanish aliases in parentheses):
   python engine/kit.py demo <demo.yml>
       Records a demo video (MP4 + poster) of a web interface from the REAL running app: zoom where the action is,
       visible cursor, captions. Use it in a slide with «@video figures/<name>.mp4».
+  python engine/kit.py guide (guia) new <folder> [--title "..."] [--lang es]   |   kit.py guide <folder>
+      Interactive study guide: pages/*.html → one self-contained HTML per page plus a map (index.html), with
+      simulators, «predict, then look» questions and an exercise mode. See examples/study-guide.
   python engine/kit.py render (renderizar) <file.pptx> <png_dir>
       .pptx -> PNG with PowerPoint (Windows only), to review it by eye.
 
@@ -715,7 +718,7 @@ def pptx_from_script(meta: dict, slides: list[dict], profile: dict, folder: Path
 # =====================================================================
 
 STARTER = {"en": """---
-title: {title}
+title: {title_yaml}
 author: Your name
 date: {date}
 place:
@@ -743,7 +746,7 @@ message: the sentence they should remember in a week
 @source where the evidence comes from
 > What you say while this slide is on screen.
 """, "es": """---
-title: {title}
+title: {title_yaml}
 author: Tu nombre
 date: {date}
 place:
@@ -831,7 +834,8 @@ def opt(args: list[str], name: str, default=None):
 
 def cmd_new(args: list[str]) -> None:
     import datetime
-    if not args:
+    import json
+    if not args or args[0].startswith("-"):
         sys.exit('Usage: kit.py new <folder> [--profile sober] [--title "..."] [--lang es]')
     folder = Path(args[0]).resolve()
     profile = opt(args, "--profile", "sober")
@@ -850,7 +854,8 @@ def cmd_new(args: list[str]) -> None:
         shutil.copy2(ENGINE / a, folder / "engine" / a)
     shutil.copytree(src, folder / "profile", dirs_exist_ok=True)
     script.write_text(STARTER["es" if lang == "es" else "en"].format(
-        title=title, profile=src.name, date=datetime.date.today().isoformat()), encoding="utf-8")
+        title=title, title_yaml=json.dumps(title, ensure_ascii=False), profile=src.name,
+        date=datetime.date.today().isoformat()), encoding="utf-8")
     brief = folder / ("brief.md" if lang == "en" else f"brief.{lang}.md")
     if not brief.exists():
         brief.write_text(BRIEF["es" if lang == "es" else "en"].format(title=title), encoding="utf-8")
@@ -1091,6 +1096,138 @@ def cmd_demo(args: list[str]) -> None:
     demo.main(args)
 
 
+GUIDE_YML = """# Study guide: one self-contained HTML file per page, opened with a double click (no server, no internet).
+title: {title_yaml}
+subtitle: What the reader will be able to do after the guide
+answer: The answer first, in one or two sentences; the pages explain it.
+lang: {lang}
+profile: {profile}   # only the accent colors are taken from it
+anim: false          # true also loads engine/anim.js (K.scene) for animated SVG figures
+# Pages: the files in pages/, in name order. Each starts with <!--META {{"title": "...", "what": "..."}} META-->.
+# A data.json next to this file reaches every page as G.data.
+"""
+
+GUIDE_PAGE = """<!--META {{"title": "{title}", "what": "The question this page answers"}} META-->
+<p class="kicker">Part 1</p>
+<h1>A title that states what the page shows</h1>
+<p class="answer">The answer, before the detail.</p>
+
+<div class="predict" data-correct="b">
+  <p class="q">Before you look: what do you expect?</p>
+  <div class="options"><button data-option="a">Option A</button><button data-option="b">Option B</button></div>
+  <p class="why">Why B: one or two sentences.</p>
+</div>
+<div class="sim wide" data-gate>
+  <div class="controls"><label>N <input type="range" id="n" min="1" max="100" value="10" data-format="int"><output for="n"></output></label></div>
+  <svg id="plot"></svg>
+</div>
+<script>
+G.bind("n", n => G.plot(document.getElementById("plot"), {{
+  xlabel: "x (unit)", ylabel: "y (unit)",
+  series: [{{ x: [0, 1, 2], y: [0, n, 2 * n] }}],
+}}));
+</script>
+
+<details class="check"><summary>Check yourself: a question</summary><p>Its answer.</p></details>
+"""
+
+
+def _guide_meta(text: str) -> tuple[dict, str]:
+    m = re.match(r"\s*<!--META\s*(\{.*?\})\s*META-->", text, re.S)
+    if not m:
+        return {}, text
+    import json
+    return json.loads(m.group(1)), text[m.end():]
+
+
+def cmd_guide(args: list[str]) -> None:
+    """Study guide: pages/*.html fragments → one self-contained HTML per page plus index.html (the map)."""
+    if not args:
+        sys.exit("Usage: kit.py guide new <folder> [--title t] [--lang es]   |   kit.py guide <folder>")
+    if args[0] == "new":
+        if len(args) < 2 or args[1].startswith("-"):
+            sys.exit("Usage: kit.py guide new <folder> [--title t] [--lang es]")
+        folder = Path(args[1]).resolve()
+        if folder.exists() and any(folder.iterdir()):
+            sys.exit(f"[ERROR] {folder} already exists and is not empty.")
+        import json
+        title = opt(args, "--title", "Study guide")
+        lang = opt(args, "--lang", "en")
+        (folder / "pages").mkdir(parents=True)
+        (folder / "guide.yml").write_text(GUIDE_YML.format(title_yaml=json.dumps(title, ensure_ascii=False), lang=lang, profile=(KIT / "profiles" / "sober").as_posix()), encoding="utf-8")
+        (folder / "pages" / "01_first.html").write_text(GUIDE_PAGE.format(title="First page"), encoding="utf-8")
+        print(f"[OK] guide in {folder}: edit guide.yml and pages/, then «kit.py guide {folder}».")
+        return
+    import json
+    folder = Path(args[0]).resolve()
+    spec = yaml.safe_load((folder / "guide.yml").read_text(encoding="utf-8")) or {}
+    lang = spec.get("lang", "en")
+    t = (lambda en, es: es if lang == "es" else en)
+    pages = sorted((folder / "pages").glob("*.html"))
+    if not pages:
+        sys.exit(f"[ERROR] no pages in {folder / 'pages'}")
+    css = (ENGINE / "guide.css").read_text(encoding="utf-8")
+    if spec.get("profile"):
+        prof = Path(spec["profile"])
+        prof = prof if prof.is_absolute() else (folder / prof)
+        c = yaml.safe_load((prof / "profile.yml").read_text(encoding="utf-8"))["colors"]
+        a, a2 = c["accent"], c["accent_2"]
+        dark = f"--accent: color-mix(in srgb, {a} 55%, white); --accent-2: color-mix(in srgb, {a2} 70%, white);"
+        css += (f"\n:root {{ --accent: {a}; --accent-2: {a2}; }}\n"
+                f"@media (prefers-color-scheme: dark) {{ :root:not([data-theme=\"light\"]) {{ {dark} }} }}\n"
+                f":root[data-theme=\"dark\"] {{ {dark} }}\n")
+    js = ""
+    if (folder / "data.json").exists():
+        js += "window.GUIDE_DATA = " + (folder / "data.json").read_text(encoding="utf-8") + ";\n"
+    if spec.get("anim"):
+        js += (ENGINE / "anim.js").read_text(encoding="utf-8") + "\n"
+    js += (ENGINE / "guide.js").read_text(encoding="utf-8")
+    js = js.replace("</script", "<\\/script")
+    metas = []
+    for p in pages:
+        meta, body = _guide_meta(p.read_text(encoding="utf-8"))
+        metas.append((p.stem, meta.get("title", p.stem), meta.get("what", ""), body))
+
+    def inline(body: str, missing: list) -> str:
+        def attribute(m):
+            u = m.group(2)
+            if u.startswith(("data:", "http:", "https:", "#")):
+                return m.group(0)
+            r = (folder / u).resolve()
+            if not r.exists():
+                missing.append(u); return m.group(0)
+            return f'{m.group(1)}="{_data_uri(r)}"'
+        return re.sub(r'\b(src|href|poster)="([^"]+\.(?:png|jpe?g|svg|gif|webp|mp4|webm))"', attribute, body)
+
+    def page(title: str, main: str) -> str:
+        bar = (f'<nav class="bar"><a class="guide-title" href="index.html">{html.escape(spec.get("title", ""))}</a>'
+               f'<span class="spacer"></span>'
+               f'<button id="exercise-btn" aria-pressed="false" title="{t("Lock each simulator until you predict", "Bloquea cada simulador hasta que predigas")}">'
+               f'{t("Exercise mode", "Modo ejercicio")}</button>'
+               f'<button id="theme-btn">{t("Light / dark", "Claro / oscuro")}</button></nav>')
+        return (f'<!doctype html>\n<html lang="{lang}">\n<head>\n<meta charset="utf-8">\n'
+                f'<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>{html.escape(title)}</title>\n'
+                f'<style>\n{css}\n</style>\n<script>\n{js}\n</script>\n</head>\n<body>\n{bar}\n<main>\n{main}\n</main>\n</body>\n</html>\n')
+
+    missing: list[str] = []
+    for i, (stem, title, _, body) in enumerate(metas):
+        prev = f'<a href="{metas[i - 1][0]}.html">← {html.escape(metas[i - 1][1])}</a>' if i else f'<a href="index.html">← {t("Map", "Mapa")}</a>'
+        nxt = f'<a href="{metas[i + 1][0]}.html">{html.escape(metas[i + 1][1])} →</a>' if i + 1 < len(metas) else "<span></span>"
+        main = inline(body, missing) + f'\n<nav class="pager">{prev}{nxt}</nav>'
+        (folder / f"{stem}.html").write_text(page(f'{title} · {spec.get("title", "")}', main), encoding="utf-8")
+    items = "\n".join(f'<li><a href="{s}.html">{i}. {html.escape(ti)}</a><span class="what">{html.escape(w)}</span></li>'
+                      for i, (s, ti, w, _) in enumerate(metas, 1))
+    index = (f'<h1>{html.escape(spec.get("title", ""))}</h1>\n'
+             + (f'<p class="lead">{html.escape(spec["subtitle"])}</p>\n' if spec.get("subtitle") else "")
+             + (f'<p class="answer">{html.escape(spec["answer"])}</p>\n' if spec.get("answer") else "")
+             + f'<ol class="map">\n{items}\n</ol>\n'
+             + (f'<p class="limits">{html.escape(spec["limits"])}</p>\n' if spec.get("limits") else ""))
+    (folder / "index.html").write_text(page(spec.get("title", ""), inline(index, missing)), encoding="utf-8")
+    print(f"[OK] {len(metas)} pages + index.html in {folder} (each opens with a double click)")
+    for f in sorted(set(missing)):
+        print(f"[WARNING] {f} not found: left as an external reference.")
+
+
 def cmd_render(args: list[str]) -> None:
     if len(args) < 2:
         sys.exit("Usage: kit.py render <file.pptx> <png_dir>")
@@ -1108,9 +1245,10 @@ $pres.Close(); $pp.Quit()
 
 
 COMMANDS = {"new": cmd_new, "build": cmd_build, "package": cmd_package, "pdf": cmd_pdf, "review": cmd_review,
-            "profile": cmd_profile, "render": cmd_render, "shots": cmd_shots, "statics": cmd_statics, "demo": cmd_demo}
+            "profile": cmd_profile, "render": cmd_render, "shots": cmd_shots, "statics": cmd_statics, "demo": cmd_demo,
+            "guide": cmd_guide}
 ALIASES_ES = {"nueva": "new", "construir": "build", "empaquetar": "package", "revisar": "review", "perfil": "profile",
-              "renderizar": "render", "capturas": "shots", "estaticos": "statics"}
+              "renderizar": "render", "capturas": "shots", "estaticos": "statics", "guia": "guide"}
 OPTIONS_ES = {"--perfil": "--profile", "--titulo": "--title", "--sobrescribir": "--overwrite", "--solo": "--only",
               "--desde": "--from", "--nombre": "--name", "--destino": "--dest", "--regenerar": "--regenerate",
               "--guion": "--script", "--idioma": "--lang"}

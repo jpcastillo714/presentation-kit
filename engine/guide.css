@@ -1,0 +1,90 @@
+/* =====================================================================
+   presentation-kit, study guides: a reading page, not a slide.
+   One column you can read for a long time, figures and simulators a bit
+   wider, light or dark following the system (or the button). The accent
+   comes from the profile; kit.py writes it as --accent before this file.
+   ===================================================================== */
+
+:root {
+  --bg: #fbfaf7; --ink: #1c2127; --soft: #5b6570; --line: #dcd8cf; --panel: #f2efe8;
+  --accent: #1f5f8b; --accent-2: #b4532a; --ok: #2f7d4f; --bad: #b3261e;
+  --font-text: Georgia, "Times New Roman", serif; --font-ui: "Segoe UI", system-ui, sans-serif;
+  --font-mono: Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #14171b; --ink: #e8e6e1; --soft: #9aa3ad; --line: #2c3238; --panel: #1c2026; }
+}
+:root[data-theme="dark"] { --bg: #14171b; --ink: #e8e6e1; --soft: #9aa3ad; --line: #2c3238; --panel: #1c2026; }
+
+html { background: var(--bg); color: var(--ink); }
+body { margin: 0; font: 19px/1.6 var(--font-text); font-variant-numeric: lining-nums; }  /* Georgia's 0 reads as o otherwise */
+main { max-width: 720px; margin: 0 auto; padding: 24px 20px 96px; }
+.wide { margin-left: -80px; margin-right: -80px; }
+@media (max-width: 900px) { .wide { margin-left: 0; margin-right: 0; } }
+
+/* Top bar: guide title, page map, theme and exercise mode */
+.bar { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+       font: 15px/1.4 var(--font-ui); display: flex; gap: 16px; align-items: center; padding: 10px 20px; }
+.bar a { color: inherit; text-decoration: none; }
+.bar .guide-title { font-weight: 600; }
+.bar .spacer { flex: 1; }
+.bar button { font: inherit; background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 6px;
+              padding: 4px 10px; cursor: pointer; }
+.bar button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
+h1 { font-size: 40px; line-height: 1.15; margin: 32px 0 8px; text-wrap: balance; }
+h2 { font-size: 27px; line-height: 1.25; margin: 48px 0 8px; text-wrap: balance; }
+h3 { font: 600 18px/1.4 var(--font-ui); margin: 28px 0 4px; }
+.kicker { font: 600 13px/1 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.lead { font-size: 22px; color: var(--soft); }
+a { color: var(--accent); }
+code { font: 0.88em var(--font-mono); background: var(--panel); padding: 1px 4px; border-radius: 3px; }
+.accent { color: var(--accent); } .accent-2 { color: var(--accent-2); } .soft { color: var(--soft); }
+
+/* The answer first: what the page shows, in two lines, before the detail */
+.answer { border-left: 5px solid var(--accent); padding: 4px 0 4px 20px; margin: 20px 0 28px; font-size: 21px; }
+
+/* Figures and simulators */
+figure { margin: 28px 0; }
+figure svg, figure img { width: 100%; height: auto; display: block; }
+figcaption, .source { font: 14px/1.45 var(--font-ui); color: var(--soft); margin-top: 8px; }
+.source::before { content: "Source: "; } html[lang="es"] .source::before { content: "Fuente: "; }
+.sim { background: var(--panel); border-radius: 10px; padding: 18px 20px; margin: 28px 0; font-family: var(--font-ui); }
+.sim .controls { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; font-size: 15px; margin-bottom: 10px; }
+.sim label { display: flex; gap: 10px; align-items: center; }
+.sim input[type="range"] { width: 200px; accent-color: var(--accent); }
+.sim output, .sim .readout { font: 600 16px var(--font-mono); color: var(--accent); min-width: 5ch; display: inline-block; }
+.sim button { font: inherit; background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+.sim svg text { fill: var(--soft); font: 13px var(--font-ui); }
+.sim svg .axis { stroke: var(--soft); stroke-width: 1; }
+.sim svg .grid { stroke: var(--line); stroke-width: 1; }
+
+/* Predict, then look (exercise mode): the simulator unlocks after an answer */
+.predict { border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 28px 0 8px; font-family: var(--font-ui); }
+.predict .q { font-weight: 600; margin: 0 0 10px; }
+.predict .options { display: flex; flex-wrap: wrap; gap: 8px; }
+.predict button { font: inherit; background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+.predict button.right { border-color: var(--ok); color: var(--ok); }
+.predict button.wrong { border-color: var(--bad); color: var(--bad); }
+.predict .why { display: none; margin: 12px 0 0; }
+.predict.answered .why { display: block; }
+body.exercise .locked { filter: blur(3px) grayscale(1); opacity: 0.45; pointer-events: none; user-select: none; }
+
+/* Check yourself: a question whose answer opens on click (retrieval, not rereading) */
+details.check { border-top: 1px solid var(--line); padding: 10px 0; font-family: var(--font-ui); }
+details.check summary { cursor: pointer; font-weight: 600; }
+
+/* Limits and what was not verified */
+.limits { font: 15px/1.5 var(--font-ui); border-left: 4px solid var(--accent-2); padding: 4px 0 4px 16px; margin: 28px 0; }
+
+/* Page navigation */
+.pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 64px; font: 16px var(--font-ui);
+         border-top: 1px solid var(--line); padding-top: 18px; }
+.pager a { text-decoration: none; }
+.map { list-style: none; padding: 0; font-family: var(--font-ui); }
+.map li { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.map a { font-weight: 600; text-decoration: none; }
+.map .what { color: var(--soft); font-size: 16px; display: block; }
+
+@media print { .bar, .pager, .sim .controls button { display: none; } body.exercise .locked { filter: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

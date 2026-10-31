@@ -8,9 +8,10 @@ aspecto sale de un **perfil** (que se puede extraer de una presentación de refe
 congreso); y el mismo guion produce una **presentación HTML** (animaciones, vista del orador, archivo único sin
 internet, PDF) y un **.pptx editable**.
 
-Trae una **skill** para agentes de IA (formato de Claude Code, la puede leer cualquier agente) para pedirle a un
-asistente que arme presentaciones con el kit (lo primero que hace es preguntar qué quieres obtener), y ejemplos
-completos para dárselos a un modelo como referencia.
+El mismo método hace también **figuras para una tesis o un paper**, **videos de demostración** de software grabados
+desde el producto real y **guías de estudio interactivas**. Trae cuatro **skills** para agentes de IA, una por
+trabajo (lo primero que hacen es preguntar qué quieres obtener), y ejemplos completos para dárselos a un modelo como
+referencia.
 
 | Registro sobrio | Registro expresivo |
 |---|---|
@@ -32,7 +33,8 @@ presentation-kit/
 ├─ examples/                presentaciones con un «por qué funciona» en cada diapositiva (tecla E)
 │  ├─ anscombe/             registro sobrio
 │  ├─ exoplanets/           registro expresivo (escenas animadas)
-│  └─ software-demo/        una charla que muestra una interfaz: una aplicación real y su video grabado
+│  ├─ software-demo/        una charla que muestra una interfaz: una aplicación real y su video grabado
+│  └─ study-guide/          una guía de estudio interactiva: dos páginas, dos simuladores
 ├─ profiles/                el aspecto: colores, tipografías, logo, fondo, plantilla .pptx opcional
 │  ├─ sober/                por defecto: papel claro, un acento
 │  └─ night/                cielo nocturno, acento ámbar
@@ -41,8 +43,9 @@ presentation-kit/
 │  ├─ deck.css, deck.js     escenario 1920×1080, pasos, notas, vista del orador, impresión/PDF
 │  ├─ anim.js               librería de animación: escenas con un estado por paso
 │  ├─ demo.py               graba videos de demostración desde una aplicación web funcionando
-│  └─ figures.py            matplotlib con el estilo del perfil
-└─ skill/presentation-kit/  la skill para agentes
+│  ├─ guide.css, guide.js   guías de estudio: página de lectura, simuladores, predicciones, modo ejercicio
+│  └─ figures.py            matplotlib con el estilo del perfil, a la medida de una diapositiva, una tesis o un paper
+└─ skill/                   las skills para agentes: presentation-kit, science-figures, software-demo-video, study-guide
 ```
 
 ## Instalación
@@ -97,6 +100,7 @@ python engine/kit.py pdf mi_charla/deck.es.html
 | `profile --regenerate <carpeta>` | Reescribe `profile.css` y `figures.mplstyle` después de editar `profile.yml` |
 | `render` | `.pptx` → PNG con PowerPoint (solo Windows) |
 | `demo <carpeta>/demo.yml` | Video de demostración (MP4 + póster) grabado desde la aplicación real funcionando |
+| `guide new <carpeta>` / `guide <carpeta>` | Guía de estudio interactiva: crea la carpeta y después arma las páginas y el mapa |
 
 Los comandos y opciones también aceptan alias en español (`construir`, `revisar`, `--perfil`…).
 
@@ -154,6 +158,29 @@ algo que todavía no existe lleva `mockup: true`, que lo estampa en cada cuadro;
 cortan y el subtítulo lo dice. Las reglas, y la evidencia detrás de cada una, están en
 [`docs/software-demos.es.md`](docs/software-demos.es.md).
 
+### Guías de estudio
+
+`guide` arma material de estudio interactivo: una página HTML autocontenida por pregunta (doble clic, sin servidor
+ni internet), cada una con la respuesta primero, simuladores que el lector mueve, preguntas de «predice y luego mira»
+que bloquean el simulador en el modo ejercicio hasta que se responden, y preguntas para comprobar. Las páginas son
+fragmentos HTML en `pages/` que usan una librería pequeña (`G.plot`, `G.bind`, `G.rng`); ver
+[`examples/study-guide`](examples/study-guide).
+
+```bash
+python engine/kit.py guide new mi_guia --title "Por qué funciona promediar" --lang es
+```
+
+```bash
+python engine/kit.py guide mi_guia
+```
+
+### Figuras para un documento
+
+`engine/figures.py` ajusta la figura a dónde se va a leer: `use_profile(perfil, medium="thesis")` (15 cm, 10 pt),
+`"paper"` (8,8 cm, una columna de revista; `width_cm=18` para dos) o `"slide"`, por defecto. Para una tesis o un
+paper, `save` escribe además un PDF vectorial a ese tamaño exacto, con texto real, listo para
+`\includegraphics[width=\textwidth]`.
+
 ### En la presentación HTML
 
 → / espacio / clic: avanzar (primero los pasos) · ←: retroceder · **N** notas · **P** vista del orador (notas,
@@ -165,24 +192,32 @@ no de la sala. Con `motion: respect` en el guion se respeta.
 
 ## Con un agente de IA
 
-La skill de [`skill/presentation-kit/SKILL.md`](skill/presentation-kit/SKILL.md) le dice a un agente cómo trabajar con
-el kit. Parte preguntando qué quieres obtener (el discurso, el contenido, la presentación, una demostración; HTML
-o .pptx) y deja las respuestas en el `brief.md` de la presentación; después, guion primero, perfil según el
-contexto, figuras, animaciones solo con las cuatro condiciones, revisión con los ojos. Para Claude Code, enlázala en tu carpeta de skills para que se mantenga al día con el repositorio:
+El kit trae cuatro **skills** (formato de Claude Code, las puede leer cualquier agente). Cada una cubre un trabajo y
+carga solo lo que ese trabajo necesita: pedir una figura para la tesis no trae las instrucciones de diapositivas.
+
+| Skill | Para | Lo primero que pregunta |
+|---|---|---|
+| [`presentation-kit`](skill/presentation-kit/SKILL.md) | presentaciones: diapositivas, una charla, una defensa, una reunión de laboratorio | qué quieres obtener (el discurso, el contenido, la presentación), HTML o .pptx, audiencia, la frase que deben recordar |
+| [`science-figures`](skill/science-figures/SKILL.md) | una figura para una tesis, un paper, un informe o un póster | el mensaje, dónde se va a leer (define el tamaño en cm), idioma |
+| [`software-demo-video`](skill/software-demo-video/SKILL.md) | un video de cómo se usa una aplicación o un panel, grabado desde el producto real | qué mostrar exactamente, si hay código que corre |
+| [`study-guide`](skill/study-guide/SKILL.md) | material interactivo para aprender un tema o preparar un examen | qué deberías poder hacer después, qué te confunde, las fuentes |
+
+Se llaman entre ellas cuando el trabajo lo pide: una presentación usa `science-figures` para sus figuras y
+`software-demo-video` para una demostración. Para Claude Code, enlaza las que quieras en tu carpeta de skills para que
+se mantengan al día con el repositorio:
 
 ```bash
-ln -s "$(pwd)/presentation-kit/skill/presentation-kit" ~/.claude/skills/presentation-kit
+for s in presentation-kit science-figures software-demo-video study-guide; do ln -s "$(pwd)/presentation-kit/skill/$s" ~/.claude/skills/$s; done
 ```
 
-En Windows (PowerShell), con una unión de carpetas:
+En Windows (PowerShell), con uniones de carpetas:
 
 ```powershell
-New-Item -ItemType Junction -Path "$HOME\.claude\skills\presentation-kit" -Target "$PWD\presentation-kit\skill\presentation-kit"
+foreach ($s in "presentation-kit","science-figures","software-demo-video","study-guide") { New-Item -ItemType Junction -Path "$HOME\.claude\skills\$s" -Target "$PWD\presentation-kit\skill\$s" }
 ```
 
-A otros agentes (Codex, Gemini, Cursor…) basta con pedirles que lean `skill/presentation-kit/SKILL.md` y
-`examples/README.md`. El método detrás del kit es justamente ese: darle al modelo presentaciones reales como
-referencia.
+A otros agentes (Codex, Gemini, Cursor…) basta con pedirles que lean el `SKILL.md` del trabajo y
+`examples/README.md`. El método detrás del kit es justamente ese: darle al modelo ejemplos reales como referencia.
 
 ## Adaptarlo a tu laboratorio
 

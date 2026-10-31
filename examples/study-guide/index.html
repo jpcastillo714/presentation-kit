@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why averaging works, and when it stops working</title>
+<style>
+/* =====================================================================
+   presentation-kit, study guides: a reading page, not a slide.
+   One column you can read for a long time, figures and simulators a bit
+   wider, light or dark following the system (or the button). The accent
+   comes from the profile; kit.py writes it as --accent before this file.
+   ===================================================================== */
+
+:root {
+  --bg: #fbfaf7; --ink: #1c2127; --soft: #5b6570; --line: #dcd8cf; --panel: #f2efe8;
+  --accent: #1f5f8b; --accent-2: #b4532a; --ok: #2f7d4f; --bad: #b3261e;
+  --font-text: Georgia, "Times New Roman", serif; --font-ui: "Segoe UI", system-ui, sans-serif;
+  --font-mono: Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #14171b; --ink: #e8e6e1; --soft: #9aa3ad; --line: #2c3238; --panel: #1c2026; }
+}
+:root[data-theme="dark"] { --bg: #14171b; --ink: #e8e6e1; --soft: #9aa3ad; --line: #2c3238; --panel: #1c2026; }
+
+html { background: var(--bg); color: var(--ink); }
+body { margin: 0; font: 19px/1.6 var(--font-text); font-variant-numeric: lining-nums; }  /* Georgia's 0 reads as o otherwise */
+main { max-width: 720px; margin: 0 auto; padding: 24px 20px 96px; }
+.wide { margin-left: -80px; margin-right: -80px; }
+@media (max-width: 900px) { .wide { margin-left: 0; margin-right: 0; } }
+
+/* Top bar: guide title, page map, theme and exercise mode */
+.bar { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line);
+       font: 15px/1.4 var(--font-ui); display: flex; gap: 16px; align-items: center; padding: 10px 20px; }
+.bar a { color: inherit; text-decoration: none; }
+.bar .guide-title { font-weight: 600; }
+.bar .spacer { flex: 1; }
+.bar button { font: inherit; background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 6px;
+              padding: 4px 10px; cursor: pointer; }
+.bar button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
+h1 { font-size: 40px; line-height: 1.15; margin: 32px 0 8px; text-wrap: balance; }
+h2 { font-size: 27px; line-height: 1.25; margin: 48px 0 8px; text-wrap: balance; }
+h3 { font: 600 18px/1.4 var(--font-ui); margin: 28px 0 4px; }
+.kicker { font: 600 13px/1 var(--font-ui); letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.lead { font-size: 22px; color: var(--soft); }
+a { color: var(--accent); }
+code { font: 0.88em var(--font-mono); background: var(--panel); padding: 1px 4px; border-radius: 3px; }
+.accent { color: var(--accent); } .accent-2 { color: var(--accent-2); } .soft { color: var(--soft); }
+
+/* The answer first: what the page shows, in two lines, before the detail */
+.answer { border-left: 5px solid var(--accent); padding: 4px 0 4px 20px; margin: 20px 0 28px; font-size: 21px; }
+
+/* Figures and simulators */
+figure { margin: 28px 0; }
+figure svg, figure img { width: 100%; height: auto; display: block; }
+figcaption, .source { font: 14px/1.45 var(--font-ui); color: var(--soft); margin-top: 8px; }
+.source::before { content: "Source: "; } html[lang="es"] .source::before { content: "Fuente: "; }
+.sim { background: var(--panel); border-radius: 10px; padding: 18px 20px; margin: 28px 0; font-family: var(--font-ui); }
+.sim .controls { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; font-size: 15px; margin-bottom: 10px; }
+.sim label { display: flex; gap: 10px; align-items: center; }
+.sim input[type="range"] { width: 200px; accent-color: var(--accent); }
+.sim output, .sim .readout { font: 600 16px var(--font-mono); color: var(--accent); min-width: 5ch; display: inline-block; }
+.sim button { font: inherit; background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 6px 14px; cursor: pointer; }
+.sim svg text { fill: var(--soft); font: 13px var(--font-ui); }
+.sim svg .axis { stroke: var(--soft); stroke-width: 1; }
+.sim svg .grid { stroke: var(--line); stroke-width: 1; }
+
+/* Predict, then look (exercise mode): the simulator unlocks after an answer */
+.predict { border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 28px 0 8px; font-family: var(--font-ui); }
+.predict .q { font-weight: 600; margin: 0 0 10px; }
+.predict .options { display: flex; flex-wrap: wrap; gap: 8px; }
+.predict button { font: inherit; background: none; border: 1px solid var(--line); color: var(--ink); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+.predict button.right { border-color: var(--ok); color: var(--ok); }
+.predict button.wrong { border-color: var(--bad); color: var(--bad); }
+.predict .why { display: none; margin: 12px 0 0; }
+.predict.answered .why { display: block; }
+body.exercise .locked { filter: blur(3px) grayscale(1); opacity: 0.45; pointer-events: none; user-select: none; }
+
+/* Check yourself: a question whose answer opens on click (retrieval, not rereading) */
+details.check { border-top: 1px solid var(--line); padding: 10px 0; font-family: var(--font-ui); }
+details.check summary { cursor: pointer; font-weight: 600; }
+
+/* Limits and what was not verified */
+.limits { font: 15px/1.5 var(--font-ui); border-left: 4px solid var(--accent-2); padding: 4px 0 4px 16px; margin: 28px 0; }
+
+/* Page navigation */
+.pager { display: flex; justify-content: space-between; gap: 16px; margin-top: 64px; font: 16px var(--font-ui);
+         border-top: 1px solid var(--line); padding-top: 18px; }
+.pager a { text-decoration: none; }
+.map { list-style: none; padding: 0; font-family: var(--font-ui); }
+.map li { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.map a { font-weight: 600; text-decoration: none; }
+.map .what { color: var(--soft); font-size: 16px; display: block; }
+
+@media print { .bar, .pager, .sim .controls button { display: none; } body.exercise .locked { filter: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+:root { --accent: #1f5f8b; --accent-2: #b4532a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --accent: color-mix(in srgb, #1f5f8b 55%, white); --accent-2: color-mix(in srgb, #b4532a 70%, white); } }
+:root[data-theme="dark"] { --accent: color-mix(in srgb, #1f5f8b 55%, white); --accent-2: color-mix(in srgb, #b4532a 70%, white); }
+
+</style>
+<script>
+/* presentation-kit, study guides: theme, exercise mode, predictions, and a small SVG plotter for simulators.
+   window.G is the API used by each page's own script:
+
+     G.plot(svg, {xlabel, ylabel, xlim:[a,b], ylim:[a,b], xlog, ylog,
+                  series:[{x:[...], y:[...], color, width, dots, dash, label}],
+                  bands:[{x:[...], lo:[...], hi:[...], color}], marks:[{x, label}]})
+     G.bind("slider-id", value => {...})  // range input + its <output>, calls back now and on every change
+     G.num(3.14159, 2)                    // number in the page's language (decimal comma in Spanish)
+     G.rng(seed)                          // repeatable random numbers: .uniform(), .normal()
+     G.data                               // the guide's data.json, if the folder has one
+
+   Markup that needs no script:
+     <div class="predict" data-correct="b"> <p class="q">…</p>
+       <div class="options"><button data-option="a">…</button><button data-option="b">…</button></div>
+       <p class="why">explanation shown after answering</p> </div>
+     <div class="sim" data-gate>…</div>      ← locked in exercise mode until the prediction above is answered
+*/
+(function () {
+  "use strict";
+  const lang = document.documentElement.lang || "en";
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* private window: fine */ } },
+  };
+  const t = (en, es) => (lang === "es" ? es : en);
+
+  // ----- theme and exercise mode (remembered per browser; the page works without it)
+  function setupBar() {
+    const theme = store.get("guide-theme");
+    if (theme) document.documentElement.dataset.theme = theme;
+    const tb = document.getElementById("theme-btn");
+    if (tb) tb.onclick = () => {
+      const dark = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim().startsWith("#1");
+      const next = dark ? "light" : "dark";
+      document.documentElement.dataset.theme = next; store.set("guide-theme", next);
+    };
+    const eb = document.getElementById("exercise-btn");
+    const on = store.get("guide-exercise") === "1";
+    document.body.classList.toggle("exercise", on);
+    if (eb) {
+      eb.setAttribute("aria-pressed", String(on));
+      eb.onclick = () => {
+        const now = !document.body.classList.contains("exercise");
+        document.body.classList.toggle("exercise", now); eb.setAttribute("aria-pressed", String(now));
+        store.set("guide-exercise", now ? "1" : "0");
+      };
+    }
+  }
+
+  // ----- predictions: answer, see why; the next gated simulator unlocks
+  function setupPredictions() {
+    document.querySelectorAll(".predict").forEach(box => {
+      let gate = box.nextElementSibling;
+      while (gate && !gate.matches("[data-gate]") && !gate.matches(".predict")) gate = gate.nextElementSibling;
+      if (gate && gate.matches("[data-gate]")) gate.classList.add("locked"); else gate = null;
+      box.querySelectorAll("button[data-option]").forEach(b => b.addEventListener("click", () => {
+        box.querySelectorAll("button[data-option]").forEach(x => x.classList.remove("right", "wrong"));
+        b.classList.add(b.dataset.option === box.dataset.correct ? "right" : "wrong");
+        box.querySelector(`button[data-option="${box.dataset.correct}"]`).classList.add("right");
+        box.classList.add("answered");
+        if (gate) gate.classList.remove("locked");
+      }));
+    });
+  }
+
+  // ----- numbers and random numbers
+  function num(v, digits = 2) {
+    const s = Number(v).toFixed(digits).replace("-", "−");
+    return lang === "es" ? s.replace(".", ",") : s;
+  }
+  function rng(seed = 1) {
+    let s = seed >>> 0;
+    const uniform = () => { s = (s + 0x6D2B79F5) >>> 0; let x = s; x = Math.imul(x ^ (x >>> 15), x | 1);
+      x ^= x + Math.imul(x ^ (x >>> 7), x | 61); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+    const normal = () => Math.sqrt(-2 * Math.log(1 - uniform())) * Math.cos(2 * Math.PI * uniform());
+    return { uniform, normal };
+  }
+
+  // ----- a small plotter: axes with names and units, ticks, lines, dots, bands, vertical marks
+  const NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function ticks(a, b, log) {
+    if (log) { const out = []; for (let p = Math.ceil(Math.log10(a)); p <= Math.floor(Math.log10(b)); p++) out.push(10 ** p); return out; }
+    const span = b - a, step0 = 10 ** Math.floor(Math.log10(span / 5));
+    const step = [1, 2, 5, 10].map(m => m * step0).find(s => span / s <= 6);
+    const out = []; for (let v = Math.ceil(a / step) * step; v <= b + 1e-9 * span; v += step) out.push(+v.toPrecision(12));
+    return out;
+  }
+  function fmt(v, log) {
+    if (log) return v >= 1e4 || v < 1e-3 ? `10^${Math.round(Math.log10(v))}` : String(v);
+    return num(v, Math.abs(v) < 10 && v % 1 ? (Math.abs(v) < 1 ? 2 : 1) : 0);
+  }
+  function plot(svg, o) {
+    const W = 640, H = 340, L = 64, R = 16, T = 14, B = 50;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.innerHTML = "";
+    const all = (k) => (o.series || []).flatMap(s => s[k]).concat((o.bands || []).flatMap(b => k === "x" ? b.x : b.lo.concat(b.hi)));
+    const [x0, x1] = o.xlim || [Math.min(...all("x")), Math.max(...all("x"))];
+    const [y0, y1] = o.ylim || [Math.min(...all("y")), Math.max(...all("y"))];
+    const tx = v => o.xlog ? Math.log10(v) : v, ty = v => o.ylog ? Math.log10(v) : v;
+    const X = v => L + (tx(v) - tx(x0)) / (tx(x1) - tx(x0)) * (W - L - R);
+    const Y = v => H - B - (ty(v) - ty(y0)) / (ty(y1) - ty(y0)) * (H - T - B);
+    for (const v of ticks(y0, y1, o.ylog)) {
+      el("line", { x1: L, x2: W - R, y1: Y(v), y2: Y(v), class: "grid" }, svg);
+      el("text", { x: L - 8, y: Y(v) + 4, "text-anchor": "end" }, svg).textContent = fmt(v, o.ylog);
+    }
+    for (const v of ticks(x0, x1, o.xlog))
+      el("text", { x: X(v), y: H - B + 18, "text-anchor": "middle" }, svg).textContent = fmt(v, o.xlog);
+    el("line", { x1: L, x2: W - R, y1: H - B, y2: H - B, class: "axis" }, svg);
+    if (o.xlabel) el("text", { x: (L + W - R) / 2, y: H - 8, "text-anchor": "middle" }, svg).textContent = o.xlabel;
+    if (o.ylabel) el("text", { x: 14, y: (T + H - B) / 2, "text-anchor": "middle", transform: `rotate(-90 14 ${(T + H - B) / 2})` }, svg).textContent = o.ylabel;
+    const clip = el("clipPath", { id: (svg.id || "p") + "-clip" }, el("defs", {}, svg));
+    el("rect", { x: L, y: T, width: W - L - R, height: H - T - B }, clip);
+    const g = el("g", { "clip-path": `url(#${clip.id})` }, svg);
+    for (const b of o.bands || []) {
+      const pts = b.x.map((x, i) => `${X(x)},${Y(b.hi[i])}`).concat(b.x.map((x, i) => `${X(x)},${Y(b.lo[i])}`).reverse());
+      el("polygon", { points: pts.join(" "), fill: b.color || "var(--accent)", opacity: b.opacity || 0.15 }, g);
+    }
+    for (const s of o.series || []) {
+      const color = s.color || "var(--accent)";
+      if (s.dots) s.x.forEach((x, i) => el("circle", { cx: X(x), cy: Y(s.y[i]), r: s.r || 3, fill: color, opacity: s.opacity || 0.8 }, g));
+      else el("polyline", { points: s.x.map((x, i) => `${X(x)},${Y(s.y[i])}`).join(" "), fill: "none", stroke: color,
+        "stroke-width": s.width || 2.2, "stroke-dasharray": s.dash || "" }, g);
+      if (s.label) { const i = s.x.length - 1; el("text", { x: X(s.x[i]) - 4, y: Y(s.y[i]) - 8, "text-anchor": "end", style: `fill:${color}` }, svg).textContent = s.label; }
+    }
+    for (const m of o.marks || []) {
+      el("line", { x1: X(m.x), x2: X(m.x), y1: T, y2: H - B, stroke: m.color || "var(--accent-2)", "stroke-dasharray": "4 4" }, svg);
+      if (m.label) el("text", { x: X(m.x) + 6, y: T + 14, style: `fill:${m.color || "var(--accent-2)"}` }, svg).textContent = m.label;
+    }
+    return { X, Y };
+  }
+
+  function bind(id, fn) {
+    const input = document.getElementById(id);
+    const out = document.querySelector(`output[for="${id}"]`);
+    const run = () => { const v = Number(input.value); if (out) out.textContent = input.dataset.format === "int" ? String(v) : num(v, Number(input.dataset.digits || 2)); fn(v); };
+    input.addEventListener("input", run); run();
+    return input;
+  }
+
+  window.G = { plot, bind, num, rng, t, data: window.GUIDE_DATA || null };
+  document.addEventListener("DOMContentLoaded", () => { setupBar(); setupPredictions(); });
+})();
+
+</script>
+</head>
+<body>
+<nav class="bar"><a class="guide-title" href="index.html">Why averaging works, and when it stops working</a><span class="spacer"></span><button id="exercise-btn" aria-pressed="false" title="Lock each simulator until you predict">Exercise mode</button><button id="theme-btn">Light / dark</button></nav>
+<main>
+<h1>Why averaging works, and when it stops working</h1>
+<p class="lead">Two pages and two simulators to study the 1/√N rule before an exam or a lab session.</p>
+<p class="answer">The average of N independent measurements scatters √N times less than one measurement. Averaging removes what changes from one measurement to the next, never what stays the same.</p>
+<ol class="map">
+<li><a href="01_square_root.html">1. The average scatters √N times less</a><span class="what">Why 4 times more data only halves the error</span></li>
+<li><a href="02_floor.html">2. Averaging cannot remove an offset</a><span class="what">Where the 1/√N rule stops: the systematic floor</span></li>
+</ol>
+<p class="limits">Every number on these pages comes from the simulators, which draw random measurements with the spread and offset you choose; there is no real dataset. The result σ/√N assumes independent measurements with the same spread.</p>
+
+</main>
+</body>
+</html>

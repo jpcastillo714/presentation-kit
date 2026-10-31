@@ -102,7 +102,7 @@ function draw() {
   const card = document.getElementById("resid-card"), rs = document.getElementById("resid");
   card.classList.toggle("on", state.resid); rs.innerHTML = "";
   if (state.resid) {
-    const res = x.map((xi, i) => y[i] - (f.a + f.b * xi)), RY = (v) => 100 - v * 30;
+    const res = x.map((xi, i) => y[i] - (f.a + f.b * xi)), RY = (v) => 100 - v * 25;
     el("line", { x1: 60, x2: 770, y1: 100, y2: 100, stroke: "#c9ced4" }, rs);
     x.forEach((xi, i) => el("circle", { cx: X(xi), cy: RY(res[i]), r: 6, fill: Math.abs(res[i]) > 2 ? "#b4532a" : "#1f5f8b" }, rs));
     const hint = document.getElementById("resid-hint");

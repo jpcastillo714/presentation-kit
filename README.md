@@ -7,9 +7,9 @@ catalog of templates. You write a plain-text script where every slide title is a
 **profile** (which can be extracted from a reference deck from your lab, faculty or conference); and the same script
 produces an **HTML deck** (animations, presenter view, offline single file, PDF) and an **editable .pptx**.
 
-It ships with an AI-agent **skill** (Claude Code format, readable by any agent) so you can ask an assistant to build
-decks with it (it starts by asking what you want to get), and with worked examples you can hand to a model as
-reference.
+The same method also makes **figures for a thesis or paper**, **demo videos** of software recorded from the real
+product, and **interactive study guides**. It ships with four AI-agent **skills**, one per job (they start by asking
+what you want to get), and with worked examples you can hand to a model as reference.
 
 | Sober register | Expressive register |
 |---|---|
@@ -31,7 +31,8 @@ presentation-kit/
 ├─ examples/                worked decks with a "why it works" note on every slide (press E)
 │  ├─ anscombe/             sober register
 │  ├─ exoplanets/           expressive register (animated scenes)
-│  └─ software-demo/        a talk that shows an interface: a real app and its recorded demo video
+│  ├─ software-demo/        a talk that shows an interface: a real app and its recorded demo video
+│  └─ study-guide/          an interactive study guide: two pages, two simulators
 ├─ profiles/                the look: colors, fonts, logo, background, optional .pptx template
 │  ├─ sober/                default: light paper, one accent
 │  └─ night/                dark night sky, amber accent
@@ -40,8 +41,9 @@ presentation-kit/
 │  ├─ deck.css, deck.js     1920×1080 stage, steps, notes, presenter view, print/PDF
 │  ├─ anim.js               animation library: scenes with one state per step
 │  ├─ demo.py               records demo videos from a running web app
-│  └─ figures.py            matplotlib with the profile's style
-└─ skill/presentation-kit/  the agent skill
+│  ├─ guide.css, guide.js   study guides: reading page, simulators, predictions, exercise mode
+│  └─ figures.py            matplotlib with the profile's style, sized for a slide, a thesis or a paper
+└─ skill/                   the agent skills: presentation-kit, science-figures, software-demo-video, study-guide
 ```
 
 ## Install
@@ -99,6 +101,7 @@ get `deck.es.html` and `my_talk.es.pptx`.
 | `profile --regenerate <dir>` | Rewrites `profile.css` and `figures.mplstyle` after editing `profile.yml` |
 | `render` | `.pptx` → PNG with PowerPoint (Windows only) |
 | `demo <folder>/demo.yml` | Demo video (MP4 + poster) recorded from the real running app |
+| `guide new <folder>` / `guide <folder>` | Interactive study guide: scaffold, then build the pages and the map |
 
 Every command and option also has a Spanish alias (`construir`, `revisar`, `--perfil`…).
 
@@ -167,6 +170,27 @@ Then `@video figures/demo_residuals.mp4` on a slide: it plays when the slide ope
 yet carries `mockup: true`, which stamps it on every frame; waits longer than 1.5 s are cut and the caption says
 so. The rules, and the evidence behind each, are in [`docs/software-demos.md`](docs/software-demos.md).
 
+### Study guides
+
+`guide` builds interactive study material: one self-contained HTML page per question (double click, no server, no
+internet), each with the answer first, simulators the reader moves, "predict, then look" questions that lock the
+simulator in exercise mode until answered, and check-yourself questions. Pages are HTML fragments in `pages/`, using a
+small library (`G.plot`, `G.bind`, `G.rng`); see [`examples/study-guide`](examples/study-guide).
+
+```bash
+python engine/kit.py guide new my_guide --title "Why averaging works" --lang es
+```
+
+```bash
+python engine/kit.py guide my_guide
+```
+
+### Figures for a document
+
+`engine/figures.py` sizes a figure for where it will be read: `use_profile(profile, medium="thesis")` (15 cm, 10 pt),
+`"paper"` (8.8 cm, one journal column; `width_cm=18` for two) or the default `"slide"`. For a thesis or paper, `save`
+also writes a vector PDF at that exact size, with real text, ready for `\includegraphics[width=\textwidth]`.
+
 ### In the HTML deck
 
 → / space / click: next (steps first) · ←: back · **N** notes · **P** presenter view (notes, next slide, clock) ·
@@ -178,24 +202,31 @@ computer, not to the room. Add `motion: respect` to the script to honor it.
 
 ## Using it with an AI agent
 
-The skill in [`skill/presentation-kit/SKILL.md`](skill/presentation-kit/SKILL.md) tells an agent how to work with
-the kit. It starts by asking what you want to get (the talk itself, the content, the deck, a demo; HTML or .pptx)
-and writes the answers to the deck's `brief.md`; then script first, profile from context, figures, animations only
-under the four conditions, review by eye. For
-Claude Code, link it into your skills folder so it stays in sync with the repository:
+The kit ships four **skills** (Claude Code format, readable by any agent). Each one covers one job and loads only
+what that job needs, so asking for a thesis figure does not bring in the instructions for slides:
+
+| Skill | For | Starts by asking |
+|---|---|---|
+| [`presentation-kit`](skill/presentation-kit/SKILL.md) | presentations: slides, a talk, a defense, a lab meeting | what you want to get (the talk, the content, the deck), HTML or .pptx, audience, the one sentence |
+| [`science-figures`](skill/science-figures/SKILL.md) | one figure for a thesis, paper, report or poster | the message, where it will be read (sets size in cm), language |
+| [`software-demo-video`](skill/software-demo-video/SKILL.md) | a video of how an app or dashboard is used, recorded from the real product | what exactly to show, whether there is code that runs |
+| [`study-guide`](skill/study-guide/SKILL.md) | interactive material to learn a topic or prepare an exam | what you should be able to do after it, what confuses you, the sources |
+
+They call each other when a job needs it: a deck uses `science-figures` for its figures and `software-demo-video`
+for a demo. For Claude Code, link the ones you want into your skills folder so they stay in sync with the repository:
 
 ```bash
-ln -s "$(pwd)/presentation-kit/skill/presentation-kit" ~/.claude/skills/presentation-kit
+for s in presentation-kit science-figures software-demo-video study-guide; do ln -s "$(pwd)/presentation-kit/skill/$s" ~/.claude/skills/$s; done
 ```
 
-On Windows (PowerShell), use a junction instead:
+On Windows (PowerShell), use junctions instead:
 
 ```powershell
-New-Item -ItemType Junction -Path "$HOME\.claude\skills\presentation-kit" -Target "$PWD\presentation-kit\skill\presentation-kit"
+foreach ($s in "presentation-kit","science-figures","software-demo-video","study-guide") { New-Item -ItemType Junction -Path "$HOME\.claude\skills\$s" -Target "$PWD\presentation-kit\skill\$s" }
 ```
 
-Other agents (Codex, Gemini, Cursor…) can simply be told to read `skill/presentation-kit/SKILL.md` and
-`examples/README.md`. The method behind the kit is exactly that: give the model real decks as reference.
+Other agents (Codex, Gemini, Cursor…) can simply be told to read the `SKILL.md` of the job and `examples/README.md`.
+The method behind the kit is exactly that: give the model real examples as reference.
 
 ## Adapting it to your lab
 

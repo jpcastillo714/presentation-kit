@@ -1,0 +1,8 @@
+# Study guide example: built with «python engine/kit.py guide examples/study-guide».
+title: Why averaging works, and when it stops working
+subtitle: Two pages and two simulators to study the 1/√N rule before an exam or a lab session.
+answer: The average of N independent measurements scatters √N times less than one measurement. Averaging removes what changes from one measurement to the next, never what stays the same.
+lang: en
+profile: ../../profiles/sober
+anim: false
+limits: Every number on these pages comes from the simulators, which draw random measurements with the spread and offset you choose; there is no real dataset. The result σ/√N assumes independent measurements with the same spread.

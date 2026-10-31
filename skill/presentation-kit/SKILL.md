@@ -1,6 +1,6 @@
 ---
 name: presentation-kit
-description: Build scientific and lab presentations with presentation-kit. Start from a script where every title states the conclusion. The look comes from a profile taken from the context (a reference deck from the lab, faculty or conference), matplotlib figures share that style, and the same script produces an animated HTML deck and an editable .pptx. Use it when the user asks for a presentation, slides, a talk, a thesis defense, a seminar, a lab meeting, a class, to improve a deck, or to adapt a deck to the style of another. No catalog styles, no decoration; animation only when the content is a change.
+description: Build scientific and lab presentations with presentation-kit. Start from a script where every title states the conclusion. The look comes from a profile taken from the context (a reference deck from the lab, faculty or conference), figures share that style, and the same script produces an animated HTML deck and an editable .pptx. Use it when the user asks for a presentation, slides, a talk, a thesis defense, a seminar, a lab meeting, a class, to improve a deck, or to adapt a deck to the style of another. No catalog styles, no decoration; animation only when the content is a change. A single figure for a document is science-figures; a demo video on its own is software-demo-video; study material is study-guide.
 ---
 
 # presentation-kit
@@ -39,12 +39,9 @@ Record the answers in the deck's `brief.md` (`kit.py new` creates it) so the dec
 **Round 2: shape.** How long is the talk; language; is there a reference deck or template for the style (lab,
 faculty, conference, company); sober or expressive register (show the two examples if they hesitate).
 
-**Demos of software.** If the talk shows an interface, also ask:
-- **what exactly to demonstrate:** which task, in which order, with which input (the question typed into the model,
-  the filter applied to the dashboard…);
-- **is there code that runs?** If yes, the demo video is **recorded from the real product** (`kit.py demo`), never
-  drawn by hand. If there is no code yet, it can only be a *mock-up*, and the slide must say so;
-- how to start it (URL, command) and whether it needs data or credentials (use test data only).
+**Demos of software.** If the talk shows an interface, the video is made with the sibling skill
+`software-demo-video` (`<kit>/skill/software-demo-video/SKILL.md`): read it and add its questions (what exactly to
+demonstrate, whether there is code that runs, how to start it) to round 1.
 
 Then, in the order the user chose, deliver each piece and **wait for their OK before the next one** (narrative →
 content → deck is the usual order).
@@ -55,7 +52,8 @@ content → deck is the usual order).
   deck, `exoplanets` for an expressive one, `software-demo` for a talk that shows an interface). Every slide has an
   `@why` note: that is the reference for level and tone. Read `<kit>/PRINCIPLES.md` (short) as well.
 - **The content belongs to the user.** No number, result or figure is invented: it comes from their files, with its
-  source on the same slide. If a number is missing, ask.
+  source on the same slide. If a number is missing, ask. If the user's message holds only approximately in the data
+  ("twice", with ratios of 2.05 and 1.91), say so and word the titles to match.
 
 ## The method
 
@@ -71,13 +69,10 @@ content → deck is the usual order).
    - **With a PDF, image or web page as reference:** copy `profiles/sober`, edit `profile.yml` while looking at it, and
      regenerate.
    - **With no reference:** use `sober`, or `night` for the expressive register.
-3. **Figures with that deck's profile.** Write `figures/make_figures.py` in the folder, using
-   `from figures import use_profile, save, decimal_comma`. Each figure is saved as .svg (for the HTML) and .png (for
-   the .pptx).
-   - Axes with names and units; `cividis` or `viridis`, never `jet`.
-   - What matters in the accent color, the rest in grey.
-   - Check the data before plotting (see `examples/anscombe/figures/make_figures.py`).
-   - Regenerate the figures if you change profile.
+3. **Figures with that deck's profile.** Follow the sibling skill `science-figures`
+   (`<kit>/skill/science-figures/SKILL.md`: read it before the first figure) with `use_profile("profile")`, the
+   slide medium. Write `figures/make_figures.py` in the deck folder; each figure is saved as .svg (for the HTML) and
+   .png (for the .pptx). Regenerate the figures if you change profile.
 4. **Animation only if the four conditions in `PRINCIPLES.md` hold:**
    - it is a transformation;
    - static figures cannot say it;
@@ -94,18 +89,10 @@ content → deck is the usual order).
      matter, `transition: fade` is the only transition allowed.
    - `kit.py statics <folder>` photographs each animation's final frame for the .pptx; the PDF prints the final SVG
      state by itself. Radial-gradient backgrounds leave stripes in Chromium PDFs: disable them in `@media print`.
-   **Demo videos of software** (`kit.py demo <folder>/demo.yml`; reference: `examples/software-demo`). The rules
-   come from `docs/software-demos.md`, which says how strong the evidence for each one is:
-   - record the real app in a real browser; anything mocked (`mockup: true`), sped up or cut is said on screen;
-   - write the task before recording and start from a clean state (fresh session, no filters, fixed data);
-   - one task per clip, well under 5 minutes; the first caption says the goal, the last one the result;
-   - the amber box marks the element in use; zoom only where small text must be read (`zoom: false` otherwise);
-   - for LLM demos, waits are cut and the caption says how long (automatic for `wait_for`); tell the audience how
-     many of your test runs worked;
-   - for a live demo, keep the recorded clip in the deck as the backup.
-
-   In the script, `@video figures/<name>.mp4` puts it on a slide: it plays when the slide opens, V pauses it, and
-   the PDF and the .pptx get the poster (the .pptx also embeds the video).
+   **Demo videos of software:** record them with the sibling skill `software-demo-video`
+   (`<kit>/skill/software-demo-video/SKILL.md`; reference deck: `examples/software-demo`). In the script,
+   `@video figures/<name>.mp4` puts the video on a slide: it plays when the slide opens, V pauses it, and the PDF and
+   the .pptx get the poster (the .pptx also embeds the video).
 5. **Build and review by eye.**
    - `kit.py build <folder>` (add `--script script.es.md` for the Spanish version) produces the HTML and the .pptx.
    - `kit.py review <folder>/deck.html` checks titles, sources and text load.
@@ -145,4 +132,4 @@ content → deck is the usual order).
 | `package <deck.html> [out.html]` | Single offline HTML file |
 | `pdf <file.html> [out.pdf]` | PDF via Chrome/Edge, one slide per page |
 | `profile --from ref.pptx --name n` / `profile --regenerate <dir>` | Create or update a profile |
-| `demo <folder>/demo.yml` | Demo video (MP4 + poster) recorded from the real running app |
+| `demo <folder>/demo.yml` | Demo video (MP4 + poster): see the `software-demo-video` skill |

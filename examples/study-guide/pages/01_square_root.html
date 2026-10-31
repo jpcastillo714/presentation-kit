@@ -1,0 +1,64 @@
+<!--META {"title": "The average scatters √N times less", "what": "Why 4 times more data only halves the error"} META-->
+<p class="kicker">Part 1 · The rule</p>
+<h1>Averaging N measurements divides the scatter by √N, not by N</h1>
+<p class="answer">Each measurement is the true value plus noise. Noise of opposite signs partly cancels in a sum, so
+the average scatters around the truth by σ/√N, where σ is the scatter of one measurement.</p>
+
+<p>Imagine measuring the same length many times with a ruler whose readings scatter by σ = 1 mm. One reading can be off
+by about a millimetre. What happens when you average several?</p>
+
+<div class="predict" data-correct="b">
+  <p class="q">You average 4 times as many readings. The scatter of the average…</p>
+  <div class="options">
+    <button data-option="a">drops to a quarter</button>
+    <button data-option="b">drops to a half</button>
+    <button data-option="c">stays the same</button>
+  </div>
+  <p class="why">A half: √4 = 2. The noise does not vanish in proportion to the data, because the cancellation is
+  only partial. The simulator below repeats the experiment many times so you can see it.</p>
+</div>
+
+<div class="sim wide" data-gate>
+  <div class="controls">
+    <label>Readings averaged, N <input type="range" id="n1" min="1" max="100" value="4" data-format="int"><output for="n1"></output></label>
+    <span>scatter of the average: <span class="readout" id="sd1"></span> mm</span>
+    <span class="soft">σ/√N = <span class="readout" id="th1"></span> mm</span>
+  </div>
+  <svg id="p1" role="img" aria-label="Histogram of 2000 simulated averages"></svg>
+  <figcaption>2000 repeated experiments, each averaging N readings with σ = 1 mm. Grey: one reading alone. Accent: the
+  averages. Move N from 1 to 4 to 16: the accent curve narrows by 2, then by 2 again.</figcaption>
+</div>
+<script>
+(function () {
+  const R = 2000, bins = 41, lo = -3.5, hi = 3.5, w = (hi - lo) / bins;
+  const centers = Array.from({ length: bins }, (_, i) => lo + w * (i + 0.5));
+  function hist(values) {
+    const h = new Array(bins).fill(0);
+    values.forEach(v => { const k = Math.floor((v - lo) / w); if (k >= 0 && k < bins) h[k]++; });
+    return h.map(c => c / (R * w));
+  }
+  const single = (() => { const r = G.rng(7); return hist(Array.from({ length: R }, () => r.normal())); })();
+  G.bind("n1", n => {
+    const r = G.rng(11);
+    const means = Array.from({ length: R }, () => { let s = 0; for (let i = 0; i < n; i++) s += r.normal(); return s / n; });
+    const m = means.reduce((a, b) => a + b, 0) / R;
+    const sd = Math.sqrt(means.reduce((a, b) => a + (b - m) ** 2, 0) / (R - 1));
+    document.getElementById("sd1").textContent = G.num(sd, 3);
+    document.getElementById("th1").textContent = G.num(1 / Math.sqrt(n), 3);
+    G.plot(document.getElementById("p1"), {
+      xlabel: "error of the result (mm)", ylabel: "probability density (1/mm)", xlim: [lo, hi], ylim: [0, 4.2],
+      series: [{ x: centers, y: single, color: "var(--soft)", width: 1.5 }, { x: centers, y: hist(means), width: 2.6 }],
+    });
+  });
+})();
+</script>
+
+<h2>Read the rule on a log–log plot</h2>
+<p>On logarithmic axes, σ/√N is a straight line with slope −½: every factor of 100 in N buys a factor of 10 in
+precision. That is why the last digit of a measurement is so expensive.</p>
+
+<details class="check"><summary>Check yourself: you need an error 3 times smaller. How many more readings?</summary>
+<p>9 times more: the error goes as 1/√N, so N must grow by 3² = 9.</p></details>
+<details class="check"><summary>Check yourself: why is it √N and not N?</summary>
+<p>The sum of N independent noises has a variance N·σ² (variances add), so its scatter is √N·σ. Dividing the sum by N
+to get the average leaves σ·√N / N = σ/√N.</p></details>
